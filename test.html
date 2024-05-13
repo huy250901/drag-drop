@@ -1,0 +1,28 @@
+// function createSection() { // const sectionId =
+useSectionStore().sections.length + 1; // Tính toán sectionId dựa trên số lượng
+sections đã có trong store // const sectionData = { // id: sectionId, //
+classes: [ // "section", // "w-[900px]", // "h-[300px]", // "bg-slate-200", //
+"mb-4", // "m-auto", // ], // }; // useSectionStore().addSection(sectionData);
+// const sectionElement = document.createElement("section"); //
+sectionElement.setAttribute("id", sectionId); //
+sectionData.classes.forEach((className) => //
+sectionElement.classList.add(className) // ); //
+sectionElement.addEventListener("click", function () { // const sectionId =
+this.id; // if (sectionId) { // selectedSectionId.value = sectionId; //
+showCreateButton.value = true; // console.log("showCreateButton",
+showCreateButton); // } // }); //
+document.getElementById("sectionContainer").appendChild(sectionElement); // } //
+function createButton(selectedSectionId) { // const sectionElement =
+document.getElementById(selectedSectionId); // if (sectionElement) { // const
+buttonId = sectionElement.getAttribute("id"); // const buttonData = { // id:
+buttonId, // classes: ["button", "bg-red-300", "w-[96px]", "h-[30px]",
+"rounded-md"], // contents: "Button", // }; // const existingButtons =
+JSON.parse(localStorage.getItem("buttons")) || []; //
+existingButtons.push(buttonData); // localStorage.setItem("buttons",
+JSON.stringify(existingButtons)); // const buttonElement =
+document.createElement("button"); // buttonElement.setAttribute("id", buttonId);
+// buttonData.classes.forEach((className) => //
+buttonElement.classList.add(className) // ); //
+buttonElement.appendChild(document.createTextNode(buttonData.contents)); //
+sectionElement.appendChild(buttonElement); // } else { // console.error(`Section
+with ID ${selectedSectionId} not found.`); // } // }

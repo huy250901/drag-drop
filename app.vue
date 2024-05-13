@@ -1,12 +1,7 @@
 <template>
   <div>
-    <header
-      class="bg-slate-500 h-16 items-center flex content-center px-4"
-    >
-      <button
-        @click="openMenu"
-        class="px-4 bg-slate-200 p-2 rounded-md"
-      >
+    <header class="bg-slate-500 h-16 items-center flex content-center px-4">
+      <button @click="openMenu" class="px-4 bg-slate-200 p-2 rounded-md">
         Menu
       </button>
     </header>
@@ -23,7 +18,7 @@
         <li>
           <button
             class="button bg-white p-2 rounded-md w-full"
-            @click="createSection"
+            @click="addSection"
             id="createSectionBtn"
           >
             Create Section
@@ -32,23 +27,25 @@
         <li v-if="showCreateButton">
           <button
             class="bg-white p-2 rounded-md w-full"
-            @click="
-              createButton(selectedSectionId)
-            "
+            @click="createButton(selectedSectionId)"
           >
             Create Button
           </button>
         </li>
       </ul>
     </div>
-    <!-- <button
-      @click="createSection"
-      id="createSectionBtn"
+    <div
+      v-for="section in sections"
+      @click="handleSectionClick(section.id)"
+      :key="section.id"
+      class="section bg-slate-500 rounded-md p-4 mb-4 w-2/3 m-auto h-[300px]"
     >
-      Create Section
-    </button> -->
-
-    <div id="sectionContainer"></div>
+      <div v-for="button in section.buttons" :key="button.id">
+        <button class="bg-red-600 p-2 rounded-md w-24 h-10">
+          {{ button.contents }}
+        </button>
+      </div>
+    </div>
     <div
       class="flex justify-center flex-col items-center"
       id="buttonContainer"
@@ -64,12 +61,16 @@
 
 <script setup>
 import { ref } from "vue";
-import IcClose from "../components/ic_close.vue";
+import IcClose from "./assets/icons/ic_close.vue";
+import { useSectionStore } from "~/store/myStore";
 const isMenuOpen = ref(false);
 
 let sectionIdCounter = 0;
 const showCreateButton = ref(false);
 const selectedSectionId = ref(null);
+const sectionStore = useSectionStore();
+
+const sections = sectionStore.sections;
 
 const openMenu = () => {
   isMenuOpen.value = true;
@@ -86,170 +87,83 @@ const menuClasses = computed(() => {
   };
 });
 
-// const createButton = () => {
-//   const buttonId = 2;
-//   const buttonData = {
-//     id: buttonId,
+// function createSection() {
+//   const sectionId = useSectionStore().sections.length + 1;
+
+//   const sectionData = {
+//     id: sectionId,
 //     classes: [
-//       "button",
-//       "bg-red-300",
-//       "w-[96px]",
-//       "h-[30px]",
+//       "section",
+//       "w-[900px]",
+//       "h-[300px]",
+//       "bg-slate-200",
+//       "mb-4",
+//       "m-auto",
 //     ],
-//     contents: "Button",
 //   };
 
-//   const existingButtons =
-//     JSON.parse(localStorage.getItem("buttons")) ||
-//     [];
-//   existingButtons.push(buttonData);
-//   localStorage.setItem(
-//     "buttons",
-//     JSON.stringify(existingButtons)
+//   useSectionStore().addSection(sectionData);
+
+//   const sectionElement = document.createElement("section");
+//   sectionElement.setAttribute("id", sectionId);
+//   sectionData.classes.forEach((className) =>
+//     sectionElement.classList.add(className)
 //   );
 
-//   const buttonElement =
-//     document.createElement("button");
-//   buttonElement.setAttribute("id", buttonId);
-//   buttonData.classes.forEach((className) =>
-//     buttonElement.classList.add(className)
-//   );
+//   sectionElement.addEventListener("click", function () {
+//     const sectionId = this.id;
 
-//   buttonElement.appendChild(
-//     document.createTextNode(buttonData.contents)
-//   );
+//     if (sectionId) {
+//       selectedSectionId.value = sectionId;
+//       showCreateButton.value = true;
+//       console.log("showCreateButton", showCreateButton);
+//     }
+//   });
 
-//   document
-//     .getElementById("buttonContainer")
-//     .appendChild(buttonElement);
-// };
+//   document.getElementById("sectionContainer").appendChild(sectionElement);
+// }
 
-function createSection() {
-  sectionIdCounter++;
-  const sectionId = sectionIdCounter;
+const addSection = () => {
+  const sectionId = sectionStore.sections.length + 1;
   const sectionData = {
     id: sectionId,
-    classes: [
-      "section",
-      "w-[900px]",
-      "h-[300px]",
-      "bg-slate-200",
-      "mb-4",
-      "m-auto",
-    ],
+    buttons: [],
   };
+  sectionStore.addSection(sectionData);
+};
 
-  const existingSections =
-    JSON.parse(
-      localStorage.getItem("sections")
-    ) || [];
-  existingSections.push(sectionData);
-  localStorage.setItem(
-    "sections",
-    JSON.stringify(existingSections)
-  );
+const handleSectionClick = (sectionId) => {
+  console.log("Clicked on Section", sectionId);
+  showCreateButton.value = true;
+  selectedSectionId.value = sectionId;
+};
 
-  const sectionElement =
-    document.createElement("section");
-  sectionElement.setAttribute("id", sectionId);
-  sectionData.classes.forEach((className) =>
-    sectionElement.classList.add(className)
-  );
-
-  // Thêm sự kiện click cho phần tử <section>
-  sectionElement.addEventListener(
-    "click",
-    function () {
-      // console.log(
-      //   "Phần tử <section> đã được click"
-      // );
-
-      const sectionId = this.id;
-      // console.log(
-      //   "ID của phần tử <section> được click là: ",
-      //   sectionId
-      // );
-
-      if (sectionId) {
-        selectedSectionId.value = sectionId;
-        showCreateButton.value = true;
-        console.log(
-          "showCreateButton",
-          showCreateButton
-        );
-      }
-    }
-  );
-
-  document
-    .getElementById("sectionContainer")
-    .appendChild(sectionElement);
-}
-
-function createButton(selectedSectionId) {
-  const sectionElement = document.getElementById(
-    selectedSectionId
-  );
-  if (sectionElement) {
-    const buttonId =
-      sectionElement.getAttribute("id");
-    const buttonData = {
-      id: buttonId,
-      classes: [
-        "button",
-        "bg-red-300",
-        "w-[96px]",
-        "h-[30px]",
-        "rounded-md",
-      ],
-      contents: "Button",
-    };
-
-    const existingButtons =
-      JSON.parse(
-        localStorage.getItem("buttons")
-      ) || [];
-    existingButtons.push(buttonData);
-    localStorage.setItem(
-      "buttons",
-      JSON.stringify(existingButtons)
+const createButton = () => {
+  if (selectedSectionId.value !== null) {
+    console.log("co ");
+    const sectionId = selectedSectionId.value;
+    const clickedSection = sectionStore.sections.find(
+      (section) => section.id === sectionId
     );
+    if (clickedSection) {
+      console.log("tao button ");
 
-    const buttonElement =
-      document.createElement("button");
-    buttonElement.setAttribute("id", buttonId);
-    buttonData.classes.forEach((className) =>
-      buttonElement.classList.add(className)
-    );
-
-    buttonElement.appendChild(
-      document.createTextNode(buttonData.contents)
-    );
-
-    sectionElement.appendChild(buttonElement);
-  } else {
-    console.error(
-      `Section with ID ${selectedSectionId} not found.`
-    );
-  }
-}
-
-document.addEventListener(
-  "click",
-  function (event) {
-    const clickedElement = event.target;
-
-    const isClickedInsideSection =
-      clickedElement.closest("section");
-    const isClickedInsideMenu =
-      clickedElement.closest("button");
-
-    if (
-      !isClickedInsideSection &&
-      !isClickedInsideMenu
-    ) {
-      showCreateButton.value = false;
+      const buttonId = clickedSection.buttons.length + 1;
+      const buttonData = {
+        id: buttonId,
+        contents: `Button ${buttonId}`,
+      };
+      sectionStore.addButtonToSection(sectionId, buttonData);
+      console.log("buttonData", buttonData);
     }
   }
-);
+};
+
+document.addEventListener("click", (event) => {
+  const target = event.target;
+
+  if (!target.closest(".menuLeft") && !target.closest(".section")) {
+    showCreateButton.value = false;
+  }
+});
 </script>
