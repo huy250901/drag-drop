@@ -15,6 +15,10 @@ export const useSectionStore = defineStore({
       );
       if (section) {
         section.buttons.push(buttonData);
+        console.log(
+          "section.buttons after adding:",
+          section.buttons
+        );
       }
     },
     addParagraphToSection(
