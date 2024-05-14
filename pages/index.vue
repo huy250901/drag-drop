@@ -10,12 +10,23 @@
         Menu
       </button>
       <button
-        v-if="selectedElement.type !== null"
-        @click="deleteElement"
-        class="fixed bottom-10 right-10 px-4 bg-red-500 p-2 rounded-md text-white"
+        @click.stop="deleteElement"
+        :class="{
+          'bg-red-500': selectedElement,
+          'bg-slate-200': !selectedElement,
+        }"
+        class="px-4 p-2 rounded-md"
+        :disabled="!selectedElement"
       >
         Xóa
       </button>
+      <!-- <button
+        v-if="selectedElement.type !== null"
+        @click="deleteElement"
+        class="px-4 bg-slate-200 p-2 rounded-md"
+      >
+        Xóa
+      </button> -->
       <!-- <router-link
         class="px-4 bg-slate-200 p-2 rounded-md"
         to="/PreviewPage"
@@ -94,62 +105,49 @@
         </li>
       </ul>
     </div>
-    <div
-      v-for="section in sections"
-      @click="handleSectionClick(section.id)"
-      :key="section.id"
-      class="section relative bg-slate-500 rounded-md p-4 mb-4 w-2/3 m-auto h-[300px]"
-      @dragover.prevent
-      @drop="drop($event, section.id)"
+    <draggable
+      v-model="sections"
+      @end="onDragEnd"
     >
       <div
-        v-for="paragraph in section.paragraphs"
-        :key="paragraph.id"
-        @click="
-          selectElement(
-            section.id,
-            'paragraph',
-            paragraph.id
-          )
-        "
+        v-for="section in sections"
+        @click="handleSectionClick(section.id)"
+        :key="section.id"
+        class="section relative bg-slate-500 rounded-md p-4 mb-4 w-2/3 m-auto h-[300px]"
+        @dragover.prevent
+        @drop="drop($event, section.id)"
       >
-        <p
-          :id="'paragraph-' + paragraph.id"
-          class="cursor-pointer bg-emerald-600 text-center w-40"
+        <div
+          v-for="paragraph in section.paragraphs"
+          :key="paragraph.id"
         >
-          {{ paragraph.contents }}
-        </p>
-      </div>
-      <div
-        v-for="button in section.buttons"
-        :key="button.id"
-      >
-        <button
-          :id="'button-' + button.id"
-          class="absolute bg-red-600 p-2 rounded-md w-24 h-10"
-          @click="
-            selectElement(
-              section.id,
-              'button',
-              button.id
-            )
-          "
-          @mousedown="
-            startDrag(
-              $event,
-              section.id,
-              button.id
-            )
-          "
+          <p
+            :id="'paragraph-' + paragraph.id"
+            class="cursor-pointer bg-emerald-600 text-center w-40"
+          >
+            {{ paragraph.contents }}
+          </p>
+        </div>
+        <div
+          v-for="button in section.buttons"
+          :key="button.id"
         >
-          {{ button.contents }}
-        </button>
+          <button
+            :id="'button-' + button.id"
+            class="absolute bg-red-600 p-2 rounded-md w-24 h-10"
+            @mousedown="
+              startDrag(
+                $event,
+                section.id,
+                button.id
+              )
+            "
+          >
+            {{ button.contents }}
+          </button>
+        </div>
       </div>
-    </div>
-    <div
-      class="flex justify-center flex-col items-center"
-      id="buttonContainer"
-    ></div>
+    </draggable>
   </div>
 </template>
 
@@ -376,6 +374,9 @@ const selectElement = (
   type,
   elementId
 ) => {
+  console.log(
+    "selectElement: " + selectedElement.value
+  );
   selectedElement.value = {
     sectionId,
     type,
@@ -385,6 +386,7 @@ const selectElement = (
 
 const deleteElement = () => {
   if (selectedElement.value.type === "button") {
+    console.log("day la button");
     sectionStore.removeButtonFromSection(
       selectedElement.value.sectionId,
       selectedElement.value.elementId
@@ -392,6 +394,7 @@ const deleteElement = () => {
   } else if (
     selectedElement.value.type === "paragraph"
   ) {
+    console.log("day la paragraph");
     sectionStore.removeParagraphFromSection(
       selectedElement.value.sectionId,
       selectedElement.value.elementId
