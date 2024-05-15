@@ -1,34 +1,46 @@
 <template>
   <div>
-    <h1>Preview</h1>
+    <!-- <h1 class="relative z-40">Preview</h1> -->
+    <NuxtLink
+      class="bg-red-500 rounded-md p-2 relative z-40 top-[12px]"
+      to="/"
+      >Return Home</NuxtLink
+    >
     <div v-if="dataPreview">
       <div
         v-for="section in previewSections"
         :key="section.id"
       >
-        <h2>Section {{ section.id }}</h2>
-        <div
-          v-for="button in section.buttons"
-          :key="button.id"
+        <component
+          :is="section.type"
+          :class="section.css"
         >
-          <p>
-            Button {{ button.id }}:
-            {{ button.contents }}
-          </p>
-        </div>
-        <div
-          v-for="paragraph in section.paragraphs"
-          :key="paragraph.id"
-        >
-          <p>
-            Paragraph {{ paragraph.id }}:
-            {{ paragraph.contents }}
-          </p>
-        </div>
+          <div
+            v-for="button in section.buttons"
+            :key="button.id"
+          >
+            <button :class="`${button.css}`">
+              {{ button.contents }}
+              {{ button.left }}
+              {{ button.top }}
+            </button>
+          </div>
+          <div
+            v-for="paragraph in section.paragraphs"
+            :key="paragraph.id"
+          >
+            <p :class="paragraph.css">
+              {{ paragraph.contents }}
+            </p>
+          </div>
+        </component>
       </div>
     </div>
-    <div v-else>
-      <h1>Không có dữ liệu</h1>
+    <div
+      v-else
+      class="flex justify-center items-center h-screen"
+    >
+      <h1 class="relative">Không có dữ liệu</h1>
     </div>
   </div>
 </template>
@@ -45,6 +57,7 @@ const route = useRoute();
 onMounted(() => {
   const sections = route.query.sections;
   if (sections) {
+    console.log("dataPreview", sections);
     try {
       previewSections.value =
         JSON.parse(sections);
@@ -55,9 +68,5 @@ onMounted(() => {
       console.error("Error parsing sections:", e);
     }
   }
-  console.log(
-    previewSections.value,
-    "preview sections value"
-  );
 });
 </script>
