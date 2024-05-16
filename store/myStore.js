@@ -21,7 +21,7 @@ export const useSectionStore = defineStore({
       const sectionWithDefaults = {
         ...sectionData,
         type: "section",
-        css: "section relative w-full border-transparent border-2	 h-[100px] bg-slate-500",
+        css: "section relative w-full border-transparent border-2 h-[500px] bg-slate-500",
         buttons: [],
         paragraphs: [],
         modules: [],
@@ -63,8 +63,12 @@ export const useSectionStore = defineStore({
         const buttonWithDefaults = {
           ...buttonData,
           id: buttonId,
-          css: `bg-blue-500 text-white rounded`,
+          css: `h-full w-full bg-blue-500 text-white rounded`,
           type: "button",
+          width: "128",
+          height: "44",
+          left: "",
+          top: "",
           contents: `Button ${buttonId}`,
         };
         section.buttons.push(buttonWithDefaults);

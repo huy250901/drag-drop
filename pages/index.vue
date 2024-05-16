@@ -102,7 +102,7 @@
       "
       :key="section.id"
       :class="[
-        `${section.css}
+        `${section.css} h-[500px]
         border-2 border-transparent`,
         {
           selected:
@@ -113,14 +113,32 @@
       <vue-draggable-resizable
         v-for="button in section.buttons"
         :key="button.id"
+        @dragging="onDrag"
+        @drag-stop="
+          (x, y) =>
+            onDragStop(
+              x,
+              y,
+              'button',
+              section.id,
+              button.id
+            )
+        "
         class="absolute w-32 h-11"
-        :w="128"
-        :h="44"
+        :w="`${button.width}`"
+        :h="`${button.height}`"
         :parent="true"
       >
+        <p
+          v-if="dragging"
+          class="absolute top-[-20px] left-0"
+        >
+          <!-- :style="`transform: translate(${button.left}px, ${button.right}px)`" -->
+
+          X: {{ x }} / Y: {{ y }}
+        </p>
         <button
-          :id="'button-' + button.id"
-          :class="`w-full h-full bg-blue-500 ${button.css}`"
+          :class="`${button.css}`"
           @click="
             selectElement(
               section.id,
@@ -129,7 +147,10 @@
             )
           "
         >
-          {{ button.contents }}
+          <!-- {{ `${button.contents}` }} -->
+          {{
+            `X: ${button.left}, Y:${button.top}`
+          }}
         </button>
       </vue-draggable-resizable>
       <vue-draggable-resizable
@@ -146,7 +167,7 @@
           <button
             v-for="btn in moduleBtn.buttons"
             :key="btn.id"
-            class="w-40 h-8 bg-slate-400"
+            class=""
           >
             {{ btn.contents }}
           </button>
@@ -175,79 +196,6 @@
           {{ paragraph.contents }}
         </p>
       </vue-draggable-resizable>
-
-      <!-- <vue-draggable-resizable
-        :w="128"
-        :h="80"
-        :parent="true"
-      >
-        <div
-          v-for="moduleBtn in section.modules"
-          :key="moduleBtn.id"
-          class="bg-lime-500 w-32 h-20 flex items-center justify-center"
-        >
-          <button
-            v-for="btn in moduleBtn.buttons"
-            :key="btn.id"
-            class="w-full h-full bg-slate-400"
-          >
-            {{ `${btn.contents}` }}
-          </button>
-        </div>
-      </vue-draggable-resizable> -->
-
-      <!-- <div
-        v-for="paragraph in section.paragraphs"
-        :key="paragraph.id"
-      >
-        <p
-          :id="'paragraph-' + paragraph.id"
-          :style="`left: ${paragraph.left}px; top: ${paragraph.top}px`"
-          :class="`${paragraph.css}`"
-          @click="
-            selectElement(
-              section.id,
-              'paragraph',
-              paragraph.id
-            )
-          "
-          @mousedown="
-            startDrag(
-              $event,
-              section.id,
-              paragraph.id,
-              'paragraph'
-            )
-          "
-        >
-          {{ paragraph.contents }}
-        </p>
-      </div> -->
-      <!-- <vue-draggable-resizable
-        :w="128"
-        :h="44"
-        :parent="true"
-      >
-        <div
-          v-for="button in section.buttons"
-          :key="button.id"
-          class="w-32 h-11"
-        >
-          <button
-            :id="'button-' + button.id"
-            :class="`w-full h-full bg-blue-500  ${button.css}`"
-            @click="
-              selectElement(
-                section.id,
-                'button',
-                button.id
-              )
-            "
-          >
-            {{ button.contents }}
-          </button>
-        </div>
-      </vue-draggable-resizable> -->
     </div>
   </div>
 </template>
@@ -257,7 +205,7 @@
 }
 
 .selected {
-  border: 2px dotted black;
+  border: 2px dotted white;
 }
 </style>
 
@@ -269,7 +217,75 @@ import { useRouter } from "vue-router";
 import draggable from "vuedraggable";
 import VueDraggableResizable from "vue-draggable-resizable";
 
+const dragging = ref(false);
+const x = ref(0);
+const y = ref(0);
+
 const drag = ref(false);
+
+const onDrag = (...$event) => {
+  console.log("dang keo");
+  console.log("EVENT", ...$event);
+  console.log("EVENT X", $event[0]);
+  console.log("EVENT Y", $event[1]);
+  dragging.value = true;
+  x.value = $event[0];
+  y.value = $event[1];
+};
+
+const onDragStop = (
+  x,
+  y,
+  elementType,
+  sectionId,
+  buttonId
+) => {
+  console.log("X:", x);
+  console.log("Y:", y);
+  console.log("elementType:", elementType);
+  console.log("sectionId:", sectionId);
+  console.log("buttonId:", buttonId);
+
+  const section = sectionStore.sections.find(
+    (section) => section.id === sectionId
+  );
+  if (section) {
+    if (elementType === "button") {
+      const button = section.buttons.find(
+        (button) => button.id === buttonId
+      );
+      if (button) {
+        console.log("gan thanh cong", x, y);
+        button.left = x; // Gán giá trị left
+        button.top = y; // Gán giá trị top
+      }
+    }
+  }
+
+  dragging.value = false;
+};
+
+// const onDragStop = (
+//   x,
+//   y,
+//   typeElement,
+//   sectionId,
+//   buttonId
+// ) => {
+//   console.log("X:", x);
+//   console.log("Y:", y);
+//   console.log("typeElement:", typeElement);
+//   console.log("sectionId:", sectionId);
+//   console.log("buttonId:", buttonId);
+
+//   dragging.value = false;
+// };
+
+// const onDragStop = (x, y) => {
+//   console.log("X", x);
+//   console.log("Y", y);
+//   dragging.value = false;
+// };
 const store = useSectionStore();
 
 const isMenuOpen = ref(false);
@@ -349,6 +365,7 @@ const handleSectionClick = (sectionId, event) => {
   console.log("Clicked element:", element);
   showMenuElement.value = true;
   selectedSectionId.value = sectionId;
+  element.style;
 };
 
 const createParagraph = () => {
@@ -442,105 +459,105 @@ document.addEventListener("click", (event) => {
   }
 });
 
-const startDrag = (
-  event,
-  sectionId,
-  elementId,
-  elementType
-) => {
-  const element = event.target;
-  const sectionElement =
-    element.closest(".section");
-  const sectionRect =
-    sectionElement.getBoundingClientRect();
-  const initialX = event.clientX;
-  const initialY = event.clientY;
-  const offsetX = element.offsetLeft;
-  const offsetY = element.offsetTop;
+// const startDrag = (
+//   event,
+//   sectionId,
+//   elementId,
+//   elementType
+// ) => {
+//   const element = event.target;
+//   const sectionElement =
+//     element.closest(".section");
+//   const sectionRect =
+//     sectionElement.getBoundingClientRect();
+//   const initialX = event.clientX;
+//   const initialY = event.clientY;
+//   const offsetX = element.offsetLeft;
+//   const offsetY = element.offsetTop;
 
-  const onMouseMove = (moveEvent) => {
-    const deltaX = moveEvent.clientX - initialX;
-    const deltaY = moveEvent.clientY - initialY;
-    let newLeft = offsetX + deltaX;
-    let newTop = offsetY + deltaY;
+//   const onMouseMove = (moveEvent) => {
+//     const deltaX = moveEvent.clientX - initialX;
+//     const deltaY = moveEvent.clientY - initialY;
+//     let newLeft = offsetX + deltaX;
+//     let newTop = offsetY + deltaY;
 
-    const elementRect =
-      element.getBoundingClientRect();
-    if (newLeft < 0) newLeft = 0;
-    if (newTop < 0) newTop = 0;
-    if (
-      newLeft + elementRect.width >
-      sectionRect.width
-    )
-      newLeft =
-        sectionRect.width - elementRect.width;
-    if (
-      newTop + elementRect.height >
-      sectionRect.height
-    )
-      newTop =
-        sectionRect.height - elementRect.height;
+//     const elementRect =
+//       element.getBoundingClientRect();
+//     if (newLeft < 0) newLeft = 0;
+//     if (newTop < 0) newTop = 0;
+//     if (
+//       newLeft + elementRect.width >
+//       sectionRect.width
+//     )
+//       newLeft =
+//         sectionRect.width - elementRect.width;
+//     if (
+//       newTop + elementRect.height >
+//       sectionRect.height
+//     )
+//       newTop =
+//         sectionRect.height - elementRect.height;
 
-    element.style.left = `${newLeft}px`;
-    element.style.top = `${newTop}px`;
+//     element.style.left = `${newLeft}px`;
+//     element.style.top = `${newTop}px`;
 
-    const section = sectionStore.sections.find(
-      (section) => section.id === sectionId
-    );
+//     const section = sectionStore.sections.find(
+//       (section) => section.id === sectionId
+//     );
 
-    if (elementType === "button") {
-      console.log("keo button");
-      const button = section.buttons.find(
-        (button) => button.id === elementId
-      );
-      button.left = newLeft;
-      button.top = newTop;
-      button.css = `absolute bg-blue-500 text-white rounded px-4 py-2 left-[${newLeft}px] top-[${newTop}px]`;
-    } else if (elementType === "paragraph") {
-      console.log("keo paragraph");
+//     if (elementType === "button") {
+//       console.log("keo button");
+//       const button = section.buttons.find(
+//         (button) => button.id === elementId
+//       );
+//       button.left = newLeft;
+//       button.top = newTop;
+//       button.css = `absolute bg-blue-500 text-white rounded px-4 py-2 left-[${newLeft}px] top-[${newTop}px]`;
+//     } else if (elementType === "paragraph") {
+//       console.log("keo paragraph");
 
-      const paragraph = section.paragraphs.find(
-        (paragraph) => paragraph.id === elementId
-      );
-      paragraph.left = newLeft;
-      paragraph.top = newTop;
-      paragraph.css = `absolute left-[${newLeft}px] top-[${newTop}px]`;
-    } else if (elementType === "section") {
-      console.log("keo section");
+//       const paragraph = section.paragraphs.find(
+//         (paragraph) => paragraph.id === elementId
+//       );
+//       paragraph.left = newLeft;
+//       paragraph.top = newTop;
+//       paragraph.css = `absolute left-[${newLeft}px] top-[${newTop}px]`;
+//     } else if (elementType === "section") {
+//       console.log("keo section");
 
-      console.log(
-        "SECTION MODULES ARRAY",
-        section.modules[elementId - 1]
-      );
-      console.log("element ID", elementId);
+//       console.log(
+//         "SECTION MODULES ARRAY",
+//         section.modules[elementId - 1]
+//       );
+//       console.log("element ID", elementId);
 
-      //     const foundModule = section.modules.find(
-      // (module) => module.id === elementId);
-      const foundModule =
-        section.modules[elementId - 1];
-      foundModule.left = newLeft;
-      foundModule.top = newTop;
-      foundModule.css = `absolute bg-slate-300 w-[200px] h-[100px] flex justify-center items-center left-[${newLeft}px] top-[${newTop}px]`;
-    }
-  };
+//       //     const foundModule = section.modules.find(
+//       // (module) => module.id === elementId);
+//       const foundModule =
+//         section.modules[elementId - 1];
+//       foundModule.left = newLeft;
+//       foundModule.top = newTop;
+//       foundModule.css = `absolute bg-slate-300 w-[200px] h-[100px] flex justify-center items-center left-[${newLeft}px] top-[${newTop}px]`;
+//     }
+//   };
 
-  const onMouseUp = () => {
-    document.removeEventListener(
-      "mousemove",
-      onMouseMove
-    );
-    document.removeEventListener(
-      "mouseup",
-      onMouseUp
-    );
-  };
+//   const onMouseUp = () => {
+//     document.removeEventListener(
+//       "mousemove",
+//       onMouseMove
+//     );
+//     document.removeEventListener(
+//       "mouseup",
+//       onMouseUp
+//     );
+//   };
 
-  document.addEventListener(
-    "mousemove",
-    onMouseMove
-  );
-  document.addEventListener("mouseup", onMouseUp);
-};
+//   document.addEventListener(
+//     "mousemove",
+//     onMouseMove
+//   );
+//   document.addEventListener("mouseup", onMouseUp);
+// };
 
 const deleteElement = () => {
   console.log("khong co element de xoa");

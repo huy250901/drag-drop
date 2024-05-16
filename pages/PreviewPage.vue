@@ -1,10 +1,10 @@
 <template>
   <div>
-    <NuxtLink
+    <!-- <NuxtLink
       class="bg-red-500 rounded-md p-2 absolute z-40 top-[12px]"
       to="/"
       >Return Home</NuxtLink
-    >
+    > -->
     <div v-if="dataPreview">
       <div
         v-for="section in previewSections"
@@ -17,13 +17,14 @@
           <div
             v-for="button in section.buttons"
             :key="button.id"
+            :style="`width: ${button.width}px; height: ${button.height}px`"
           >
             <component
               :is="button.type"
-              :style="`left: ${button.left}px ;top: ${button.top}px`"
-              :class="`${button.css} `"
+              :style="`transform: translate(${button.left}px, ${button.top}px)`"
+              :class="`${button.css}`"
             >
-              {{ button.contents }}
+              {{ `${button.contents}` }}
             </component>
           </div>
           <div
@@ -60,20 +61,6 @@
       class="flex justify-center items-center h-screen"
     >
       <h1 class="relative">Không có dữ liệu</h1>
-      <!-- <vue-draggable-resizable
-        :w="100"
-        :h="100"
-        v-on:dragging="onDrag"
-        v-on:resizing="onResize"
-        :parent="true"
-      >
-        <p>
-          Hello! I'm a flexible component. You can
-          drag me around and you can resize me.<br />
-          X: {{ x }} / Y: {{ y }} - Width:
-          {{ width }} / Height: {{ height }}
-        </p>
-      </vue-draggable-resizable> -->
       <vue-draggable-resizable>
         <p>
           You can drag me around and resize me as
