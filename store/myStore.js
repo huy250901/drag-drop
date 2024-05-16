@@ -38,7 +38,7 @@ export const useSectionStore = defineStore({
         const newSection = {
           type: "section",
           id: section.nextIds.module++, // Thêm id cho section
-          css: "bg-slate-300 w-[200px] h-[100px] flex justify-center items-center",
+          css: "flex justify-center items-center",
           buttons: [
             {
               id: section.nextIds.button++, // Sử dụng nextButtonId cho id của button
