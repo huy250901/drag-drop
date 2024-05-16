@@ -1,9 +1,20 @@
 <template>
   <div>
-    <header class="bg-slate-500 h-16 items-center flex px-4 justify-between">
-      <button @click="openMenu" class="px-4 bg-slate-200 p-2 rounded-md">
-        Menu
-      </button>
+    <header
+      class="bg-slate-500 h-16 items-center flex px-4 justify-between"
+    >
+      <vue-draggable-resizable
+        :w="50"
+        :h="50"
+        :parent="true"
+      >
+        <button
+          @click="openMenu"
+          class="px-4 bg-slate-200 p-2 rounded-md"
+        >
+          Menu
+        </button>
+      </vue-draggable-resizable>
       <button
         :class="{
           'bg-red-500': selectedElement,
@@ -16,7 +27,10 @@
         Xóa
       </button>
 
-      <button @click="preview" class="px-4 bg-slate-200 p-2 rounded-md">
+      <button
+        @click="preview"
+        class="px-4 bg-slate-200 p-2 rounded-md"
+      >
         Preview
       </button>
     </header>
@@ -29,7 +43,10 @@
         @click="closeMenu"
         class="cursor-pointer absolute top-2 right-2"
       />
-      <ul v-if="showMenuElement" class="flex flex-col gap-4 pt-4">
+      <ul
+        v-if="showMenuElement"
+        class="flex flex-col gap-4 pt-4"
+      >
         <li>
           <button
             class="button bg-white p-2 rounded-md w-full"
@@ -41,7 +58,10 @@
         </li>
 
         <li>
-          <button class="bg-white p-2 rounded-md w-full" @click="createButton">
+          <button
+            class="bg-white p-2 rounded-md w-full"
+            @click="createButton"
+          >
             Add Button
           </button>
         </li>
@@ -77,45 +97,93 @@
 
     <div
       v-for="section in sections"
-      @click="handleSectionClick(section.id)"
+      @click="
+        handleSectionClick(section.id, $event)
+      "
       :key="section.id"
-      :class="`${section.css}`"
+      :class="[
+        section.css,
+        {
+          selected:
+            selectedSectionId === section.id,
+        },
+      ]"
     >
       <div
         v-for="moduleBtn in section.modules"
         :key="moduleBtn.id"
-        :class="`${moduleBtn.css}`"
-        @mousedown="startDrag($event, section.id, moduleBtn.id, 'paragraph')"
+        :class="`absolute ${moduleBtn.css}`"
+        :style="`left: ${moduleBtn.left}px; top: ${moduleBtn.top}px`"
+        @mousedown="
+          startDrag(
+            $event,
+            section.id,
+            moduleBtn.id,
+            'section'
+          )
+        "
       >
-        <div v-for="btn in moduleBtn.buttons" :key="btn.id">
+        <div
+          v-for="btn in moduleBtn.buttons"
+          :key="btn.id"
+        >
           <button :class="btn.css">
             {{ `${btn.contents}` }}
           </button>
         </div>
       </div>
 
-      <div v-for="paragraph in section.paragraphs" :key="paragraph.id">
+      <!-- <div
+        v-for="paragraph in section.paragraphs"
+        :key="paragraph.id"
+      >
         <p
           :id="'paragraph-' + paragraph.id"
           :style="`left: ${paragraph.left}px; top: ${paragraph.top}px`"
           :class="`${paragraph.css}`"
-          @click="selectElement(section.id, 'paragraph', paragraph.id)"
-          @mousedown="startDrag($event, section.id, paragraph.id, 'paragraph')"
+          @click="
+            selectElement(
+              section.id,
+              'paragraph',
+              paragraph.id
+            )
+          "
+          @mousedown="
+            startDrag(
+              $event,
+              section.id,
+              paragraph.id,
+              'paragraph'
+            )
+          "
         >
           {{ paragraph.contents }}
         </p>
-      </div>
-
-      <div v-for="button in section.buttons" :key="button.id">
-        <button
-          :id="'button-' + button.id"
-          :class="`${button.css}`"
-          :style="`left: ${button.left}px; top: ${button.top}px`"
-          @click="selectElement(section.id, 'button', button.id)"
-          @mousedown="startDrag($event, section.id, button.id, 'button')"
+      </div> -->
+      <div
+        v-for="button in section.buttons"
+        :key="button.id"
+        class="w-full h-full"
+      >
+        <vue-draggable-resizable
+          :w="50"
+          :h="50"
+          :parent="true"
         >
-          {{ button.contents }}
-        </button>
+          <button
+            :id="'button-' + button.id"
+            :class="`${button.css}`"
+            @click="
+              selectElement(
+                section.id,
+                'button',
+                button.id
+              )
+            "
+          >
+            {{ button.contents }}
+          </button>
+        </vue-draggable-resizable>
       </div>
     </div>
   </div>
@@ -123,6 +191,10 @@
 <style>
 .menuLeft {
   transition: 0.3s ease-in-out;
+}
+
+.selected {
+  border: 2px dotted black;
 }
 </style>
 
@@ -132,6 +204,8 @@ import IcClose from "./assets/icons/ic_close.vue";
 import { useSectionStore } from "~/store/myStore";
 import { useRouter } from "vue-router";
 import draggable from "vuedraggable";
+import VueDraggableResizable from "vue-draggable-resizable";
+
 const drag = ref(false);
 const store = useSectionStore();
 
@@ -142,14 +216,6 @@ const selectedElement = ref({
   type: null,
   elementId: null,
 });
-let dragging = ref(false);
-let dragElement = ref(null);
-let initialX = ref(0);
-let initialY = ref(0);
-let offsetX = ref(0);
-let offsetY = ref(0);
-
-let sectionIdCounter = 0;
 const showMenuElement = ref(false);
 const selectedSectionId = ref(null);
 
@@ -164,12 +230,18 @@ const preview = () => {
   router.push({
     path: "/previewPage",
     query: {
-      sections: JSON.stringify(storeSections.value),
+      sections: JSON.stringify(
+        storeSections.value
+      ),
     },
   });
 };
 
-const selectElement = (sectionId, type, elementId) => {
+const selectElement = (
+  sectionId,
+  type,
+  elementId
+) => {
   selectedElement.value = {
     sectionId: sectionId,
     type: type,
@@ -207,7 +279,11 @@ const addSection = () => {
   sectionStore.addSection(sectionData);
 };
 
-const handleSectionClick = (sectionId) => {
+const handleSectionClick = (sectionId, event) => {
+  console.log("section ID clicked: " + sectionId);
+
+  const element = event.currentTarget;
+  console.log("Clicked element:", element);
   showMenuElement.value = true;
   selectedSectionId.value = sectionId;
 };
@@ -233,7 +309,10 @@ const createParagraph = () => {
         contents: `Add a paragraph text here.${paragraphId}`,
       };
 
-      sectionStore.addParagraphToSection(sectionId, paragraphData);
+      sectionStore.addParagraphToSection(
+        sectionId,
+        paragraphData
+      );
       console.log("paragraph:", section);
     }
   }
@@ -249,7 +328,9 @@ const createButton = () => {
       let nextButtonId = 1;
       if (section.buttons.length > 0) {
         const maxButtonId = Math.max(
-          ...section.buttons.map((button) => button.id)
+          ...section.buttons.map(
+            (button) => button.id
+          )
         );
         nextButtonId = maxButtonId + 1;
       }
@@ -257,7 +338,10 @@ const createButton = () => {
         id: nextButtonId,
         // contents: `Button ${nextButtonId}`,
       };
-      sectionStore.addButtonToSection(sectionId, buttonData);
+      sectionStore.addButtonToSection(
+        sectionId,
+        buttonData
+      );
     }
   }
 };
@@ -272,46 +356,40 @@ const createTemplate = () => {
     if (section) {
       const sectionData = {
         type: "section",
-        css: "bg-slate-300 w-[200px] h-[100px] flex justify-center items-center",
+        // css: "bg-slate-300 w-[200px] h-[100px] flex justify-center items-center",
       };
 
-      sectionStore.addSectionWithButton(sectionId, sectionData);
+      sectionStore.addSectionWithButton(
+        sectionId,
+        sectionData
+      );
       console.log("MODULE", section);
     }
   }
 };
 
-// const createTemplate = () => {
-//   if (selectedSectionId.value !== null) {
-//     const sectionId = selectedSectionId.value;
-//     const section = sectionStore.sections.find(
-//       (section) => section.id === sectionId
-//     );
-
-//     if (section) {
-//       const sectionData = {
-//         type: "section",
-//         css: "bg-slate-300 w-[200px] h-[100px] flex justify-center items-center",
-//       };
-
-//       sectionStore.addSectionWithButton(sectionId, sectionData);
-//       console.log("data:", section);
-//     }
-//   }
-// };
-
 document.addEventListener("click", (event) => {
   const target = event.target;
 
-  if (!target.closest(".menuLeft") && !target.closest(".section")) {
+  if (
+    !target.closest(".menuLeft") &&
+    !target.closest(".section")
+  ) {
     showMenuElement.value = false;
   }
 });
 
-const startDrag = (event, sectionId, elementId, elementType) => {
+const startDrag = (
+  event,
+  sectionId,
+  elementId,
+  elementType
+) => {
   const element = event.target;
-  const sectionElement = element.closest(".section");
-  const sectionRect = sectionElement.getBoundingClientRect();
+  const sectionElement =
+    element.closest(".section");
+  const sectionRect =
+    sectionElement.getBoundingClientRect();
   const initialX = event.clientX;
   const initialY = event.clientY;
   const offsetX = element.offsetLeft;
@@ -323,13 +401,22 @@ const startDrag = (event, sectionId, elementId, elementType) => {
     let newLeft = offsetX + deltaX;
     let newTop = offsetY + deltaY;
 
-    const elementRect = element.getBoundingClientRect();
+    const elementRect =
+      element.getBoundingClientRect();
     if (newLeft < 0) newLeft = 0;
     if (newTop < 0) newTop = 0;
-    if (newLeft + elementRect.width > sectionRect.width)
-      newLeft = sectionRect.width - elementRect.width;
-    if (newTop + elementRect.height > sectionRect.height)
-      newTop = sectionRect.height - elementRect.height;
+    if (
+      newLeft + elementRect.width >
+      sectionRect.width
+    )
+      newLeft =
+        sectionRect.width - elementRect.width;
+    if (
+      newTop + elementRect.height >
+      sectionRect.height
+    )
+      newTop =
+        sectionRect.height - elementRect.height;
 
     element.style.left = `${newLeft}px`;
     element.style.top = `${newTop}px`;
@@ -340,7 +427,9 @@ const startDrag = (event, sectionId, elementId, elementType) => {
 
     if (elementType === "button") {
       console.log("keo button");
-      const button = section.buttons.find((button) => button.id === elementId);
+      const button = section.buttons.find(
+        (button) => button.id === elementId
+      );
       button.left = newLeft;
       button.top = newTop;
       button.css = `absolute bg-blue-500 text-white rounded px-4 py-2 left-[${newLeft}px] top-[${newTop}px]`;
@@ -353,114 +442,41 @@ const startDrag = (event, sectionId, elementId, elementType) => {
       paragraph.left = newLeft;
       paragraph.top = newTop;
       paragraph.css = `absolute left-[${newLeft}px] top-[${newTop}px]`;
+    } else if (elementType === "section") {
+      console.log("keo section");
+
+      console.log(
+        "SECTION MODULES ARRAY",
+        section.modules[elementId - 1]
+      );
+      console.log("element ID", elementId);
+
+      //     const foundModule = section.modules.find(
+      // (module) => module.id === elementId);
+      const foundModule =
+        section.modules[elementId - 1];
+      foundModule.left = newLeft;
+      foundModule.top = newTop;
+      foundModule.css = `absolute bg-slate-300 w-[200px] h-[100px] flex justify-center items-center left-[${newLeft}px] top-[${newTop}px]`;
     }
   };
 
   const onMouseUp = () => {
-    document.removeEventListener("mousemove", onMouseMove);
-    document.removeEventListener("mouseup", onMouseUp);
+    document.removeEventListener(
+      "mousemove",
+      onMouseMove
+    );
+    document.removeEventListener(
+      "mouseup",
+      onMouseUp
+    );
   };
 
-  document.addEventListener("mousemove", onMouseMove);
+  document.addEventListener(
+    "mousemove",
+    onMouseMove
+  );
   document.addEventListener("mouseup", onMouseUp);
-};
-
-// const startDrag = (event, sectionId, buttonId) => {
-//   // console.log("keo tha + event", event);
-//   const buttonElement = event.target;
-//   // console.log("buttonElement", buttonElement);
-//   const sectionElement = buttonElement.closest(".section");
-//   // console.log("sectionElement", sectionElement);
-//   const sectionRect = sectionElement.getBoundingClientRect();
-//   // console.log("sectionRect", sectionRect);
-//   const initialX = event.clientX;
-//   // console.log("initialX:", initialX);
-//   const initialY = event.clientY;
-//   // console.log("initialY:", initialY);
-//   const offsetX = buttonElement.offsetLeft;
-//   // console.log("offsetX:", offsetX);
-//   const offsetY = buttonElement.offsetTop;
-//   const onMouseMove = (moveEvent) => {
-//     // console.log("start drag");
-//     // console.log("Move Event:", moveEvent);
-//     const deltaX = moveEvent.clientX - initialX;
-//     const deltaY = moveEvent.clientY - initialY;
-//     let newLeft = offsetX + deltaX;
-//     let newTop = offsetY + deltaY;
-
-//     const buttonRect = buttonElement.getBoundingClientRect();
-//     // console.log("buttonRect:", buttonRect);
-//     if (newLeft < 0) newLeft = 0;
-//     if (newTop < 0) newTop = 0;
-//     if (newLeft + buttonRect.width > sectionRect.width)
-//       newLeft = sectionRect.width - buttonRect.width;
-
-//     if (newTop + buttonRect.height > sectionRect.height)
-//       newTop = sectionRect.height - buttonRect.height;
-//     console.log("start drag", deltaX, deltaY);
-
-//     buttonElement.style.left = `${newLeft}px`;
-//     buttonElement.style.top = `${newTop}px`;
-
-//     const section = sectionStore.sections.find(
-//       (section) => section.id === sectionId
-//     );
-//     const button = section.buttons.find((button) => button.id === buttonId);
-
-//     button.left = newLeft;
-//     button.top = newTop;
-//     console.log("update");
-//     console.log("New left:", newLeft);
-//     console.log("New top:", newTop);
-//     button.css = `absolute bg-blue-500 text-white rounded px-4 py-2 left-[${newLeft}px] top-[${newTop}px]`;
-//   };
-//   const onMouseUp = () => {
-//     document.removeEventListener("mousemove", onMouseMove);
-//     document.removeEventListener("mouseup", onMouseUp);
-//   };
-//   document.addEventListener("mousemove", onMouseMove);
-//   document.addEventListener("mouseup", onMouseUp);
-// };
-
-const handleDragStart = (event, sectionId, buttonId) => {
-  // console.log("keo tha + event", event);
-  const buttonElement = event.target;
-  // console.log("buttonElement", buttonElement);
-  const sectionElement = buttonElement.closest(".section");
-  // console.log("sectionElement", sectionElement);
-  const sectionRect = sectionElement.getBoundingClientRect();
-  // console.log("sectionRect", sectionRect);
-  const initialX = event.clientX;
-  // console.log("initialX:", initialX);
-  const initialY = event.clientY;
-  // console.log("initialY:", initialY);
-  const offsetX = buttonElement.offsetLeft;
-  // console.log("offsetX:", offsetX);
-  const offsetY = buttonElement.offsetTop;
-  const onMouseMove = (moveEvent) => {
-    // console.log("start drag");
-    // console.log("Move Event:", moveEvent);
-    const deltaX = moveEvent.clientX - initialX;
-    const deltaY = moveEvent.clientY - initialY;
-    let newLeft = offsetX + deltaX;
-    let newTop = offsetY + deltaY;
-    const buttonRect = buttonElement.getBoundingClientRect();
-    // console.log("buttonRect:", buttonRect);
-    if (newLeft < 0) newLeft = 0;
-    if (newTop < 0) newTop = 0;
-    if (newLeft + buttonRect.width > sectionRect.width)
-      newLeft = sectionRect.width - buttonRect.width;
-
-    if (newTop + buttonRect.height > sectionRect.height)
-      newTop = sectionRect.height - buttonRect.height;
-    console.log("start drag", deltaX, deltaY);
-    buttonElement.style.left = `${newLeft}px`;
-    buttonElement.style.top = `${newTop}px`;
-    const section = sections.find((section) => section.id === sectionId);
-    const button = section.buttons.find((button) => button.id === buttonId);
-    button.left = newLeft;
-    button.top = newTop;
-  };
 };
 
 const deleteElement = () => {
@@ -469,12 +485,19 @@ const deleteElement = () => {
     selectedElement.value.sectionId &&
     selectedElement.value.type === "button"
   ) {
-    const sectionIndex = sectionStore.sections.findIndex(
-      (section) => section.id === selectedElement.value.sectionId
-    );
+    const sectionIndex =
+      sectionStore.sections.findIndex(
+        (section) =>
+          section.id ===
+          selectedElement.value.sectionId
+      );
     if (sectionIndex !== -1) {
-      const buttonIndex = sectionStore.sections[sectionIndex].buttons.findIndex(
-        (button) => button.id === selectedElement.value.elementId
+      const buttonIndex = sectionStore.sections[
+        sectionIndex
+      ].buttons.findIndex(
+        (button) =>
+          button.id ===
+          selectedElement.value.elementId
       );
       if (buttonIndex !== -1) {
         sectionStore.removeButtonFromSection(
@@ -487,15 +510,21 @@ const deleteElement = () => {
     selectedElement.value.sectionId &&
     selectedElement.value.type === "paragraph"
   ) {
-    const sectionIndex = sectionStore.sections.findIndex(
-      (section) => section.id === selectedElement.value.sectionId
-    );
-    if (sectionIndex !== -1) {
-      const paragraphIndex = sectionStore.sections[
-        sectionIndex
-      ].paragraphs.findIndex(
-        (paragraph) => paragraph.id === selectedElement.value.elementId
+    const sectionIndex =
+      sectionStore.sections.findIndex(
+        (section) =>
+          section.id ===
+          selectedElement.value.sectionId
       );
+    if (sectionIndex !== -1) {
+      const paragraphIndex =
+        sectionStore.sections[
+          sectionIndex
+        ].paragraphs.findIndex(
+          (paragraph) =>
+            paragraph.id ===
+            selectedElement.value.elementId
+        );
       if (paragraphIndex !== -1) {
         sectionStore.removeParagraphFromSection(
           selectedElement.value.sectionId,
