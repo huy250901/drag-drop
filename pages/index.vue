@@ -95,147 +95,145 @@
       </ul>
     </div>
 
-    <div class="flex">
-      <div
-        v-for="section in sections"
-        @click="
-          handleSectionClick(section.id, $event)
-        "
-        :key="section.id"
-        :class="[
-          `${section.css} h-[500px]
+    <div
+      v-for="section in sections"
+      @click="
+        handleSectionClick(section.id, $event)
+      "
+      :key="section.id"
+      :class="[
+        `${section.css} h-[500px]
         border-2 border-transparent`,
-          {
-            selected:
-              selectedSectionId === section.id,
-          },
-        ]"
+        {
+          selected:
+            selectedSectionId === section.id,
+        },
+      ]"
+    >
+      <vue-draggable-resizable
+        v-for="button in section.buttons"
+        :key="button.id"
+        @dragging="onDrag('button', $event)"
+        @drag-stop="
+          (x, y) =>
+            onDragStop(
+              x,
+              y,
+              'button',
+              section.id,
+              button.id
+            )
+        "
+        class="absolute w-32 h-11"
+        :w="`${button.width}`"
+        :h="`${button.height}`"
+        :x="`${button.left}`"
+        :y="`${button.top}`"
+        :parent="true"
       >
-        <vue-draggable-resizable
-          v-for="button in section.buttons"
-          :key="button.id"
-          @dragging="onDrag('button', $event)"
-          @drag-stop="
-            (x, y) =>
-              onDragStop(
-                x,
-                y,
-                'button',
-                section.id,
-                button.id
-              )
-          "
-          class="absolute w-32 h-11"
-          :w="`${button.width}`"
-          :h="`${button.height}`"
-          :x="`${button.left}`"
-          :y="`${button.top}`"
-          :parent="true"
+        <p
+          v-if="dragging"
+          class="absolute top-[-20px] left-0"
         >
-          <p
-            v-if="dragging"
-            class="absolute top-[-20px] left-0"
-          >
-            <!-- :style="
+          <!-- :style="
           button.left
             ? `transform: translate(${button.left}px, ${button.top}px)`
             : ''
         " -->
 
-            <!-- X: {{ x }} / Y: {{ y }} -->
-          </p>
-          <button
-            :class="`${button.css}`"
-            @click="
-              selectElement(
-                section.id,
-                'button',
-                button.id
-              )
-            "
-          >
-            {{ `${button.contents}` }}
-            <!-- {{
+          <!-- X: {{ x }} / Y: {{ y }} -->
+        </p>
+        <button
+          :class="`${button.css}`"
+          @click="
+            selectElement(
+              section.id,
+              'button',
+              button.id
+            )
+          "
+        >
+          {{ `${button.contents}` }}
+          <!-- {{
             `X: ${button.left}, Y:${button.top}`
           }} -->
+        </button>
+      </vue-draggable-resizable>
+      <vue-draggable-resizable
+        v-for="moduleBtn in section.modules"
+        :key="moduleBtn.id"
+        :w="`${moduleBtn.width}`"
+        :h="`${moduleBtn.height}`"
+        :x="`${moduleBtn.left}`"
+        :y="`${moduleBtn.top}`"
+        :parent="true"
+        class="absolute"
+        @dragging="onDrag('section', $event)"
+        @drag-stop="
+          (x, y) =>
+            onDragStop(
+              x,
+              y,
+              'section',
+              section.id,
+              moduleBtn.id
+            )
+        "
+      >
+        <div
+          :class="`w-full h-full ${moduleBtn.css}`"
+        >
+          <button
+            v-for="btn in moduleBtn.buttons"
+            :key="btn.id"
+            :class="`${btn.css}`"
+            :style="`width: ${btn.width}px; height: ${btn.height}px`"
+          >
+            {{ btn.contents }}
           </button>
-        </vue-draggable-resizable>
-        <vue-draggable-resizable
-          v-for="moduleBtn in section.modules"
-          :key="moduleBtn.id"
-          :w="`${moduleBtn.width}`"
-          :h="`${moduleBtn.height}`"
-          :x="`${moduleBtn.left}`"
-          :y="`${moduleBtn.top}`"
-          :parent="true"
-          class="absolute"
-          @dragging="onDrag('section', $event)"
-          @drag-stop="
-            (x, y) =>
-              onDragStop(
-                x,
-                y,
-                'section',
-                section.id,
-                moduleBtn.id
-              )
+        </div>
+      </vue-draggable-resizable>
+
+      <vue-draggable-resizable
+        v-for="paragraph in section.paragraphs"
+        :key="paragraph.id"
+        :w="`${paragraph.width}`"
+        :h="`${paragraph.height}`"
+        :x="paragraph.left"
+        :y="paragraph.top"
+        @dragging="onDrag('paragraph', $event)"
+        @drag-stop="
+          (x, y) =>
+            onDragStop(
+              x,
+              y,
+              'paragraph',
+              section.id,
+              paragraph.id
+            )
+        "
+        class="absolute"
+        :parent="true"
+      >
+        <p
+          :id="'paragraph-' + paragraph.id"
+          :class="`w-full h-full ${paragraph.css}`"
+          @click="
+            selectElement(
+              section.id,
+              'paragraph',
+              paragraph.id
+            )
           "
         >
-          <div
-            :class="`w-full h-full ${moduleBtn.css}`"
-          >
-            <button
-              v-for="btn in moduleBtn.buttons"
-              :key="btn.id"
-              :class="`${btn.css}`"
-              :style="`width: ${btn.width}px; height: ${btn.height}px`"
-            >
-              {{ btn.contents }}
-            </button>
-          </div>
-        </vue-draggable-resizable>
+          {{ paragraph.contents }}
+        </p>
+      </vue-draggable-resizable>
+    </div>
 
-        <vue-draggable-resizable
-          v-for="paragraph in section.paragraphs"
-          :key="paragraph.id"
-          :w="`${paragraph.width}`"
-          :h="`${paragraph.height}`"
-          :x="paragraph.left"
-          :y="paragraph.top"
-          @dragging="onDrag('paragraph', $event)"
-          @drag-stop="
-            (x, y) =>
-              onDragStop(
-                x,
-                y,
-                'paragraph',
-                section.id,
-                paragraph.id
-              )
-          "
-          class="absolute"
-          :parent="true"
-        >
-          <p
-            :id="'paragraph-' + paragraph.id"
-            :class="`w-full h-full ${paragraph.css}`"
-            @click="
-              selectElement(
-                section.id,
-                'paragraph',
-                paragraph.id
-              )
-            "
-          >
-            {{ paragraph.contents }}
-          </p>
-        </vue-draggable-resizable>
-      </div>
-
-      <!-- <div class="w-3/12 h-full bg-slate-200">
+    <!-- <div class="w-3/12 h-full bg-slate-200">
         <h2>Hello</h2>
       </div> -->
-    </div>
   </div>
 </template>
 <style>
