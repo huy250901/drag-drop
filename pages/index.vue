@@ -168,13 +168,13 @@
         :y="`${moduleBtn.top}`"
         :parent="true"
         class="absolute"
-        @dragging="onDrag('section', $event)"
+        @dragging="onDrag('template', $event)"
         @drag-stop="
           (x, y) =>
             onDragStop(
               x,
               y,
-              'section',
+              'template',
               section.id,
               moduleBtn.id
             )
@@ -314,7 +314,7 @@ const onDragStop = (
         console.log("Không tìm thấy đoạn văn");
       }
     }
-    if (elementType === "section") {
+    if (elementType === "template") {
       console.log("DANG KEO SECTION MODULE");
       const moduleElement = section.modules.find(
         (template) => template.id === elementId
@@ -491,7 +491,7 @@ const createTemplate = () => {
 
     if (section) {
       const sectionData = {
-        type: "section",
+        type: "template",
         // css: "bg-slate-300 w-[200px] h-[100px] flex justify-center items-center",
       };
 
@@ -636,6 +636,12 @@ const deleteElement = () => {
           selectedElement.value.elementId
       );
       if (buttonIndex !== -1) {
+        console.log(
+          "xoa element ID: " +
+            selectedElement.value.elementId,
+          "ELEMENT TYPE:",
+          selectedElement.value
+        );
         sectionStore.removeButtonFromSection(
           selectedElement.value.sectionId,
           selectedElement.value.elementId
@@ -662,6 +668,10 @@ const deleteElement = () => {
             selectedElement.value.elementId
         );
       if (paragraphIndex !== -1) {
+        console.log(
+          "xoa element: " +
+            selectedElement.value.elementId
+        );
         sectionStore.removeParagraphFromSection(
           selectedElement.value.sectionId,
           selectedElement.value.elementId

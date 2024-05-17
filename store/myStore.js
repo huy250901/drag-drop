@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+
 export const useSectionStore = defineStore({
   id: "section",
   state: () => ({
@@ -15,6 +16,16 @@ export const useSectionStore = defineStore({
       }
       if (isNaN(section.nextIds[type])) {
         section.nextIds[type] = 1;
+      }
+    },
+    initializeModuleNextId(module, type) {
+      if (!module.nextIds) {
+        module.nextIds = {
+          button: 1,
+        };
+      }
+      if (isNaN(module.nextIds[type])) {
+        module.nextIds[type] = 1;
       }
     },
     addSection(sectionData) {
@@ -34,27 +45,34 @@ export const useSectionStore = defineStore({
       );
 
       if (section) {
-        this.initializeNextId(section, "button");
+        this.initializeNextId(section, "module");
         const newSection = {
-          type: "section",
+          type: "template",
           id: section.nextIds.module++,
           css: "bg-blue-500 flex justify-center rounded-md items-center",
           width: "200",
           height: "100",
           left: "",
           top: "",
-          buttons: [
-            {
-              id: section.nextIds.button++,
-              type: "button",
-              width: "100",
-              height: "50",
-              contents: "Button in section",
-              css: "bg-blue-500 items-center flex text-white rounded px-4 py-2",
-            },
-          ],
+          buttons: [],
+          nextIds: {
+            button: 1,
+          },
           ...data,
         };
+
+        this.initializeModuleNextId(
+          newSection,
+          "button"
+        );
+        newSection.buttons.push({
+          id: newSection.nextIds.button++,
+          type: "button",
+          width: "100",
+          height: "50",
+          contents: "Button in section",
+          css: "bg-blue-500 items-center flex text-white rounded px-4 py-2",
+        });
 
         section.modules.push(newSection);
       }
@@ -134,6 +152,17 @@ export const useSectionStore = defineStore({
             (paragraph) =>
               paragraph.id !== paragraphId
           );
+      }
+    },
+    removeSectionWithButton(sectionId) {
+      const index = this.sections.findIndex(
+        (section) => section.id === sectionId
+      );
+      if (
+        index !== -1 &&
+        this.sections[index].type === "section"
+      ) {
+        this.sections.splice(index, 1);
       }
     },
   },
