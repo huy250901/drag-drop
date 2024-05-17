@@ -320,13 +320,19 @@ const onDragStop = (
         (template) => template.id === elementId
       );
       console.log("MODULE:", moduleElement);
-      if (moduleElement.id === sectionId) {
+      if (moduleElement) {
         console.log(
           "keo MODULE TRONG ID :",
-          sectionId
+          elementId
         );
         moduleElement.left = x;
         moduleElement.top = y;
+        console.log("set successfully");
+      } else {
+        console.log(
+          "Không tìm thấy module với ID:",
+          elementId
+        );
       }
     }
   } else {
