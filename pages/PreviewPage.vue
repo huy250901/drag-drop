@@ -17,7 +17,8 @@
           <div
             v-for="button in section.buttons"
             :key="button.id"
-            :style="`width: ${button.width}px; height: ${button.height}px`"
+            :style="`position: absolute;
+width: ${button.width}px; height: ${button.height}px`"
           >
             <component
               :is="button.type"
@@ -31,25 +32,30 @@
             v-for="moduleBtn in section.modules"
             :key="moduleBtn.id"
             :class="moduleBtn.css"
-            :style="`left: ${moduleBtn.left}px; top: ${moduleBtn.top}px`"
+            :style="`position: absolute;transform: translate(${moduleBtn.left}px, ${moduleBtn.top}px);width: ${moduleBtn.width}px; height: ${moduleBtn.height}px`"
           >
-            <div
+            <!-- <div
               v-for="btn in moduleBtn.buttons"
               :key="btn.id"
+              :style="`position: absolute;`"
+            > -->
+            <button
+              v-for="btn in moduleBtn.buttons"
+              :key="btn.id"
+              :style="`position: relative;`"
+              :class="`${btn.css}`"
             >
-              <button :class="btn.css">
-                {{ btn.contents }}
-              </button>
-            </div>
+              {{ btn.contents }}
+              <!-- {{ moduleBtn.left }} -->
+            </button>
+            <!-- </div> -->
           </div>
           <div
             v-for="paragraph in section.paragraphs"
             :key="paragraph.id"
+            :style="`position: absolute;transform: translate(${paragraph.left}px, ${paragraph.top}px)`"
           >
-            <p
-              :class="paragraph.css"
-              :style="`left: ${paragraph.left}px; top: ${paragraph.top}px`"
-            >
+            <p :class="paragraph.css">
               {{ paragraph.contents }}
             </p>
           </div>

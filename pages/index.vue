@@ -127,15 +127,21 @@
         class="absolute w-32 h-11"
         :w="`${button.width}`"
         :h="`${button.height}`"
+        :x="`${button.left}`"
+        :y="`${button.top}`"
         :parent="true"
       >
         <p
           v-if="dragging"
           class="absolute top-[-20px] left-0"
         >
-          <!-- :style="`transform: translate(${button.left}px, ${button.right}px)`" -->
+          <!-- :style="
+          button.left
+            ? `transform: translate(${button.left}px, ${button.top}px)`
+            : ''
+        " -->
 
-          X: {{ x }} / Y: {{ y }}
+          <!-- X: {{ x }} / Y: {{ y }} -->
         </p>
         <button
           :class="`${button.css}`"
@@ -147,27 +153,41 @@
             )
           "
         >
-          <!-- {{ `${button.contents}` }} -->
-          {{
+          {{ `${button.contents}` }}
+          <!-- {{
             `X: ${button.left}, Y:${button.top}`
-          }}
+          }} -->
         </button>
       </vue-draggable-resizable>
       <vue-draggable-resizable
         v-for="moduleBtn in section.modules"
         :key="moduleBtn.id"
-        :w="128"
-        :h="80"
+        :w="`${moduleBtn.width}`"
+        :h="`${moduleBtn.height}`"
+        :x="`${moduleBtn.left}`"
+        :y="`${moduleBtn.top}`"
         :parent="true"
         class="absolute"
+        @dragging="onDrag"
+        @drag-stop="
+          (x, y) =>
+            onDragStop(
+              x,
+              y,
+              'section',
+              section.id,
+              moduleBtn.id
+            )
+        "
       >
         <div
-          class="bg-lime-500 w-full h-full flex items-center justify-center"
+          :class="`w-full h-full ${moduleBtn.css}`"
         >
           <button
             v-for="btn in moduleBtn.buttons"
             :key="btn.id"
-            class=""
+            :class="`${btn.css}`"
+            :style="`width: ${btn.width}px; height: ${btn.height}px`"
           >
             {{ btn.contents }}
           </button>
@@ -175,10 +195,23 @@
       </vue-draggable-resizable>
 
       <vue-draggable-resizable
-        :w="200"
-        :h="24"
         v-for="paragraph in section.paragraphs"
         :key="paragraph.id"
+        :w="`${paragraph.width}`"
+        :h="`${paragraph.height}`"
+        :x="paragraph.left"
+        :y="paragraph.top"
+        @dragging="onDrag"
+        @drag-stop="
+          (x, y) =>
+            onDragStop(
+              x,
+              y,
+              'paragraph',
+              section.id,
+              paragraph.id
+            )
+        "
         class="absolute"
         :parent="true"
       >
@@ -238,13 +271,13 @@ const onDragStop = (
   y,
   elementType,
   sectionId,
-  buttonId
+  elementId
 ) => {
   console.log("X:", x);
   console.log("Y:", y);
   console.log("elementType:", elementType);
   console.log("sectionId:", sectionId);
-  console.log("buttonId:", buttonId);
+  console.log("elementId:", elementId);
 
   const section = sectionStore.sections.find(
     (section) => section.id === sectionId
@@ -252,18 +285,93 @@ const onDragStop = (
   if (section) {
     if (elementType === "button") {
       const button = section.buttons.find(
-        (button) => button.id === buttonId
+        (button) => button.id === elementId
       );
       if (button) {
-        console.log("gan thanh cong", x, y);
-        button.left = x; // Gán giá trị left
-        button.top = y; // Gán giá trị top
+        console.log("Gán thành công nút", x, y);
+        button.left = x;
+        button.top = y;
+      } else {
+        console.log("Không tìm thấy nút");
+      }
+    } else if (elementType === "paragraph") {
+      const paragraph = section.paragraphs.find(
+        (paragraph) => paragraph.id === elementId
+      );
+      if (paragraph) {
+        console.log(
+          "Gán thành công đoạn văn",
+          x,
+          y
+        );
+        paragraph.left = x;
+        paragraph.top = y;
+      } else {
+        console.log("Không tìm thấy đoạn văn");
+      }
+    } else if (elementType === "section") {
+      const module = section.modules.find(
+        (template) => template.id === elementId
+      );
+      if (module) {
+        const moduleButton = module.buttons.find(
+          (btn) => btn.id === elementId
+        );
+        if (moduleButton) {
+          console.log(
+            "Gán thành công nút module",
+            x,
+            y
+          );
+          module.left = x;
+          module.top = y;
+        } else {
+          console.log(
+            "Không tìm thấy nút trong module"
+          );
+        }
+      } else {
+        console.log("Không tìm thấy module");
       }
     }
+  } else {
+    console.log("Không tìm thấy phần");
   }
 
   dragging.value = false;
 };
+
+// const onDragStop = (
+//   x,
+//   y,
+//   elementType,
+//   sectionId,
+//   elementId
+// ) => {
+//   console.log("X:", x);
+//   console.log("Y:", y);
+//   console.log("elementType:", elementType);
+//   console.log("sectionId:", sectionId);
+//   console.log("elementId:", elementId);
+
+//   const section = sectionStore.sections.find(
+//     (section) => section.id === sectionId
+//   );
+//   if (section) {
+//     if (elementType === "button") {
+//       const button = section.buttons.find(
+//         (button) => button.id === elementId
+//       );
+//       if (button) {
+//         console.log("gan thanh cong", x, y);
+//         button.left = x;
+//         button.top = y;
+//       }
+//     }
+//   }
+
+//   dragging.value = false;
+// };
 
 // const onDragStop = (
 //   x,

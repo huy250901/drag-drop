@@ -37,14 +37,20 @@ export const useSectionStore = defineStore({
         this.initializeNextId(section, "button");
         const newSection = {
           type: "section",
-          id: section.nextIds.module++, // Thêm id cho section
-          css: "flex justify-center items-center",
+          id: section.nextIds.module++,
+          css: "bg-blue-500 flex justify-center rounded-md items-center",
+          width: "200",
+          height: "100",
+          left: "",
+          top: "",
           buttons: [
             {
-              id: section.nextIds.button++, // Sử dụng nextButtonId cho id của button
+              id: section.nextIds.button++,
               type: "button",
+              width: "100",
+              height: "50",
               contents: "Button in section",
-              css: "bg-blue-500 text-white rounded px-4 py-2",
+              css: "bg-blue-500 items-center flex text-white rounded px-4 py-2",
             },
           ],
           ...data,
@@ -93,8 +99,12 @@ export const useSectionStore = defineStore({
         const paragraphWithDefaults = {
           ...paragraphData,
           id: section.nextIds.paragraph++,
-          css: "absolute text-black",
+          css: "text-black",
           type: "paragraph",
+          width: "200",
+          height: "24",
+          left: "",
+          top: "",
         };
         section.paragraphs.push(
           paragraphWithDefaults
