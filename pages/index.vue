@@ -1,7 +1,7 @@
 <template>
   <div>
     <header
-      class="bg-slate-500 h-16 items-center flex px-4 justify-between"
+      class="bg-slate-400 h-16 items-center flex sticky z-50 top-0 px-4 justify-between"
     >
       <vue-draggable-resizable
         :w="50"
@@ -95,140 +95,146 @@
       </ul>
     </div>
 
-    <div
-      v-for="section in sections"
-      @click="
-        handleSectionClick(section.id, $event)
-      "
-      :key="section.id"
-      :class="[
-        `${section.css} h-[500px]
-        border-2 border-transparent`,
-        {
-          selected:
-            selectedSectionId === section.id,
-        },
-      ]"
-    >
-      <vue-draggable-resizable
-        v-for="button in section.buttons"
-        :key="button.id"
-        @dragging="onDrag"
-        @drag-stop="
-          (x, y) =>
-            onDragStop(
-              x,
-              y,
-              'button',
-              section.id,
-              button.id
-            )
+    <div class="flex">
+      <div
+        v-for="section in sections"
+        @click="
+          handleSectionClick(section.id, $event)
         "
-        class="absolute w-32 h-11"
-        :w="`${button.width}`"
-        :h="`${button.height}`"
-        :x="`${button.left}`"
-        :y="`${button.top}`"
-        :parent="true"
+        :key="section.id"
+        :class="[
+          `${section.css} h-[500px]
+        border-2 border-transparent`,
+          {
+            selected:
+              selectedSectionId === section.id,
+          },
+        ]"
       >
-        <p
-          v-if="dragging"
-          class="absolute top-[-20px] left-0"
+        <vue-draggable-resizable
+          v-for="button in section.buttons"
+          :key="button.id"
+          @dragging="onDrag('button', $event)"
+          @drag-stop="
+            (x, y) =>
+              onDragStop(
+                x,
+                y,
+                'button',
+                section.id,
+                button.id
+              )
+          "
+          class="absolute w-32 h-11"
+          :w="`${button.width}`"
+          :h="`${button.height}`"
+          :x="`${button.left}`"
+          :y="`${button.top}`"
+          :parent="true"
         >
-          <!-- :style="
+          <p
+            v-if="dragging"
+            class="absolute top-[-20px] left-0"
+          >
+            <!-- :style="
           button.left
             ? `transform: translate(${button.left}px, ${button.top}px)`
             : ''
         " -->
 
-          <!-- X: {{ x }} / Y: {{ y }} -->
-        </p>
-        <button
-          :class="`${button.css}`"
-          @click="
-            selectElement(
-              section.id,
-              'button',
-              button.id
-            )
-          "
-        >
-          {{ `${button.contents}` }}
-          <!-- {{
+            <!-- X: {{ x }} / Y: {{ y }} -->
+          </p>
+          <button
+            :class="`${button.css}`"
+            @click="
+              selectElement(
+                section.id,
+                'button',
+                button.id
+              )
+            "
+          >
+            {{ `${button.contents}` }}
+            <!-- {{
             `X: ${button.left}, Y:${button.top}`
           }} -->
-        </button>
-      </vue-draggable-resizable>
-      <vue-draggable-resizable
-        v-for="moduleBtn in section.modules"
-        :key="moduleBtn.id"
-        :w="`${moduleBtn.width}`"
-        :h="`${moduleBtn.height}`"
-        :x="`${moduleBtn.left}`"
-        :y="`${moduleBtn.top}`"
-        :parent="true"
-        class="absolute"
-        @dragging="onDrag"
-        @drag-stop="
-          (x, y) =>
-            onDragStop(
-              x,
-              y,
-              'section',
-              section.id,
-              moduleBtn.id
-            )
-        "
-      >
-        <div
-          :class="`w-full h-full ${moduleBtn.css}`"
-        >
-          <button
-            v-for="btn in moduleBtn.buttons"
-            :key="btn.id"
-            :class="`${btn.css}`"
-            :style="`width: ${btn.width}px; height: ${btn.height}px`"
-          >
-            {{ btn.contents }}
           </button>
-        </div>
-      </vue-draggable-resizable>
-
-      <vue-draggable-resizable
-        v-for="paragraph in section.paragraphs"
-        :key="paragraph.id"
-        :w="`${paragraph.width}`"
-        :h="`${paragraph.height}`"
-        :x="paragraph.left"
-        :y="paragraph.top"
-        @dragging="onDrag"
-        @drag-stop="
-          (x, y) =>
-            onDragStop(
-              x,
-              y,
-              'paragraph',
-              section.id,
-              paragraph.id
-            )
-        "
-        class="absolute"
-        :parent="true"
-      >
-        <p
-          :id="'paragraph-' + paragraph.id"
-          :class="`w-full h-full ${paragraph.css}`"
-          @click="
-            selectElement(
-              section.id,
-              'paragraph',
-              paragraph.id
-            )
+        </vue-draggable-resizable>
+        <vue-draggable-resizable
+          v-for="moduleBtn in section.modules"
+          :key="moduleBtn.id"
+          :w="`${moduleBtn.width}`"
+          :h="`${moduleBtn.height}`"
+          :x="`${moduleBtn.left}`"
+          :y="`${moduleBtn.top}`"
+          :parent="true"
+          class="absolute"
+          @dragging="onDrag('section', $event)"
+          @drag-stop="
+            (x, y) =>
+              onDragStop(
+                x,
+                y,
+                'section',
+                section.id,
+                moduleBtn.id
+              )
           "
         >
-          {{ paragraph.contents }}
-        </p>
-      </vue-draggable-resizable>
+          <div
+            :class="`w-full h-full ${moduleBtn.css}`"
+          >
+            <button
+              v-for="btn in moduleBtn.buttons"
+              :key="btn.id"
+              :class="`${btn.css}`"
+              :style="`width: ${btn.width}px; height: ${btn.height}px`"
+            >
+              {{ btn.contents }}
+            </button>
+          </div>
+        </vue-draggable-resizable>
+
+        <vue-draggable-resizable
+          v-for="paragraph in section.paragraphs"
+          :key="paragraph.id"
+          :w="`${paragraph.width}`"
+          :h="`${paragraph.height}`"
+          :x="paragraph.left"
+          :y="paragraph.top"
+          @dragging="onDrag('paragraph', $event)"
+          @drag-stop="
+            (x, y) =>
+              onDragStop(
+                x,
+                y,
+                'paragraph',
+                section.id,
+                paragraph.id
+              )
+          "
+          class="absolute"
+          :parent="true"
+        >
+          <p
+            :id="'paragraph-' + paragraph.id"
+            :class="`w-full h-full ${paragraph.css}`"
+            @click="
+              selectElement(
+                section.id,
+                'paragraph',
+                paragraph.id
+              )
+            "
+          >
+            {{ paragraph.contents }}
+          </p>
+        </vue-draggable-resizable>
+      </div>
+
+      <!-- <div class="w-3/12 h-full bg-slate-200">
+        <h2>Hello</h2>
+      </div> -->
     </div>
   </div>
 </template>
@@ -256,9 +262,8 @@ const y = ref(0);
 
 const drag = ref(false);
 
-const onDrag = (...$event) => {
-  console.log("dang keo");
-  console.log("EVENT", ...$event);
+const onDrag = (elementType, ...$event) => {
+  console.log("dang keo:", elementType);
   console.log("EVENT X", $event[0]);
   console.log("EVENT Y", $event[1]);
   dragging.value = true;
@@ -275,7 +280,7 @@ const onDragStop = (
 ) => {
   console.log("X:", x);
   console.log("Y:", y);
-  console.log("elementType:", elementType);
+  console.log("elementTypeeeee:", elementType);
   console.log("sectionId:", sectionId);
   console.log("elementId:", elementId);
 
@@ -294,7 +299,8 @@ const onDragStop = (
       } else {
         console.log("Không tìm thấy nút");
       }
-    } else if (elementType === "paragraph") {
+    }
+    if (elementType === "paragraph") {
       const paragraph = section.paragraphs.find(
         (paragraph) => paragraph.id === elementId
       );
@@ -309,29 +315,20 @@ const onDragStop = (
       } else {
         console.log("Không tìm thấy đoạn văn");
       }
-    } else if (elementType === "section") {
-      const module = section.modules.find(
+    }
+    if (elementType === "section") {
+      console.log("DANG KEO SECTION MODULE");
+      const moduleElement = section.modules.find(
         (template) => template.id === elementId
       );
-      if (module) {
-        const moduleButton = module.buttons.find(
-          (btn) => btn.id === elementId
+      console.log("MODULE:", module);
+      if (moduleElement.id === sectionId) {
+        console.log(
+          "keo MODULE TRONG ID :",
+          sectionId
         );
-        if (moduleButton) {
-          console.log(
-            "Gán thành công nút module",
-            x,
-            y
-          );
-          module.left = x;
-          module.top = y;
-        } else {
-          console.log(
-            "Không tìm thấy nút trong module"
-          );
-        }
-      } else {
-        console.log("Không tìm thấy module");
+        moduleElement.left = x;
+        moduleElement.top = y;
       }
     }
   } else {
@@ -341,59 +338,6 @@ const onDragStop = (
   dragging.value = false;
 };
 
-// const onDragStop = (
-//   x,
-//   y,
-//   elementType,
-//   sectionId,
-//   elementId
-// ) => {
-//   console.log("X:", x);
-//   console.log("Y:", y);
-//   console.log("elementType:", elementType);
-//   console.log("sectionId:", sectionId);
-//   console.log("elementId:", elementId);
-
-//   const section = sectionStore.sections.find(
-//     (section) => section.id === sectionId
-//   );
-//   if (section) {
-//     if (elementType === "button") {
-//       const button = section.buttons.find(
-//         (button) => button.id === elementId
-//       );
-//       if (button) {
-//         console.log("gan thanh cong", x, y);
-//         button.left = x;
-//         button.top = y;
-//       }
-//     }
-//   }
-
-//   dragging.value = false;
-// };
-
-// const onDragStop = (
-//   x,
-//   y,
-//   typeElement,
-//   sectionId,
-//   buttonId
-// ) => {
-//   console.log("X:", x);
-//   console.log("Y:", y);
-//   console.log("typeElement:", typeElement);
-//   console.log("sectionId:", sectionId);
-//   console.log("buttonId:", buttonId);
-
-//   dragging.value = false;
-// };
-
-// const onDragStop = (x, y) => {
-//   console.log("X", x);
-//   console.log("Y", y);
-//   dragging.value = false;
-// };
 const store = useSectionStore();
 
 const isMenuOpen = ref(false);

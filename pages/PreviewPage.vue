@@ -67,12 +67,6 @@ width: ${button.width}px; height: ${button.height}px`"
       class="flex justify-center items-center h-screen"
     >
       <h1 class="relative">Không có dữ liệu</h1>
-      <vue-draggable-resizable>
-        <p>
-          You can drag me around and resize me as
-          you wish.
-        </p>
-      </vue-draggable-resizable>
     </div>
   </div>
 </template>
