@@ -319,7 +319,7 @@ const onDragStop = (
       const moduleElement = section.modules.find(
         (template) => template.id === elementId
       );
-      console.log("MODULE:", module);
+      console.log("MODULE:", moduleElement);
       if (moduleElement.id === sectionId) {
         console.log(
           "keo MODULE TRONG ID :",

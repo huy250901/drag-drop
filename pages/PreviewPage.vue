@@ -32,7 +32,7 @@ width: ${button.width}px; height: ${button.height}px`"
             v-for="moduleBtn in section.modules"
             :key="moduleBtn.id"
             :class="moduleBtn.css"
-            :style="`position: absolute;transform: translate(${moduleBtn.left}px, ${moduleBtn.top}px);width: ${moduleBtn.width}px; height: ${moduleBtn.height}px`"
+            :style="`transform: translate(${moduleBtn.left}px, ${moduleBtn.top}px);position: absolute;width: ${moduleBtn.width}px;height: ${moduleBtn.height}px`"
           >
             <!-- <div
               v-for="btn in moduleBtn.buttons"
