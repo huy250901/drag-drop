@@ -3,18 +3,18 @@
     <header
       class="bg-slate-400 h-16 items-center flex sticky z-50 top-0 px-4 justify-between"
     >
-      <vue-draggable-resizable
+      <!-- <vue-draggable-resizable
         :w="50"
         :h="50"
         :parent="true"
+      > -->
+      <button
+        @click="openMenu"
+        class="px-4 bg-slate-200 p-2 rounded-md"
       >
-        <button
-          @click="openMenu"
-          class="px-4 bg-slate-200 p-2 rounded-md"
-        >
-          Menu
-        </button>
-      </vue-draggable-resizable>
+        Menu
+      </button>
+      <!-- </vue-draggable-resizable> -->
       <button
         :class="{
           'bg-red-500': selectedElement,
@@ -35,6 +35,65 @@
       </button>
     </header>
 
+    <div
+      :class="menuProperty"
+      class="menuLeft fixed z-[1000] top-0 w-52 h-full bg-gray-400 p-4"
+    >
+      <IcClose
+        @click="closeMenu"
+        class="cursor-pointer absolute top-2 right-2"
+      />
+      <ul
+        v-if="showMenuElement"
+        class="flex flex-col gap-4 pt-4"
+      >
+        <li>
+          <button
+            class="button bg-white p-2 rounded-md w-full"
+            @click="addSection"
+            id="createSectionBtn"
+          >
+            Create Section
+          </button>
+        </li>
+
+        <li>
+          <button
+            class="bg-white p-2 rounded-md w-full"
+            @click="createButton"
+          >
+            Add Button
+          </button>
+        </li>
+        <li>
+          <button
+            class="bg-white p-2 rounded-md w-full"
+            @click="createParagraph"
+          >
+            Add paragraph
+          </button>
+        </li>
+        <li>
+          <button
+            class="bg-white p-2 rounded-md w-full"
+            @click="createTemplate"
+          >
+            Add template
+          </button>
+        </li>
+      </ul>
+      <ul v-else class="flex flex-col gap-4 pt-4">
+        <li>
+          <button
+            class="button bg-white p-2 rounded-md w-full"
+            @click="addSection"
+            id="createSectionBtn"
+          >
+            Create Section
+          </button>
+        </li>
+      </ul>
+    </div>
     <div
       :class="menuClasses"
       class="menuLeft fixed z-[1000] top-0 w-52 h-full bg-gray-400 p-4"
@@ -113,6 +172,19 @@
       <vue-draggable-resizable
         v-for="button in section.buttons"
         :key="button.id"
+        @resizing="onResize"
+        @resize-stop="
+          (x, y, w, h) =>
+            onResizeStop(
+              x,
+              y,
+              w,
+              h,
+              'button',
+              section.id,
+              button.id
+            )
+        "
         @dragging="onDrag('button', $event)"
         @drag-stop="
           (x, y) =>
@@ -131,18 +203,6 @@
         :y="`${button.top}`"
         :parent="true"
       >
-        <p
-          v-if="dragging"
-          class="absolute top-[-20px] left-0"
-        >
-          <!-- :style="
-          button.left
-            ? `transform: translate(${button.left}px, ${button.top}px)`
-            : ''
-        " -->
-
-          <!-- X: {{ x }} / Y: {{ y }} -->
-        </p>
         <button
           :class="`${button.css}`"
           @click="
@@ -154,14 +214,24 @@
           "
         >
           {{ `${button.contents}` }}
-          <!-- {{
-            `X: ${button.left}, Y:${button.top}`
-          }} -->
         </button>
       </vue-draggable-resizable>
       <vue-draggable-resizable
         v-for="moduleBtn in section.modules"
         :key="moduleBtn.id"
+        @resizing="onResize"
+        @resize-stop="
+          (x, y, w, h) =>
+            onResizeStop(
+              x,
+              y,
+              w,
+              h,
+              'module',
+              section.id,
+              moduleBtn.id
+            )
+        "
         :w="`${moduleBtn.width}`"
         :h="`${moduleBtn.height}`"
         :x="`${moduleBtn.left}`"
@@ -201,6 +271,19 @@
         :h="`${paragraph.height}`"
         :x="paragraph.left"
         :y="paragraph.top"
+        @resizing="onResize"
+        @resize-stop="
+          (x, y, w, h) =>
+            onResizeStop(
+              x,
+              y,
+              w,
+              h,
+              'paragraph',
+              section.id,
+              paragraph.id
+            )
+        "
         @dragging="onDrag('paragraph', $event)"
         @drag-stop="
           (x, y) =>
@@ -230,10 +313,6 @@
         </p>
       </vue-draggable-resizable>
     </div>
-
-    <!-- <div class="w-3/12 h-full bg-slate-200">
-        <h2>Hello</h2>
-      </div> -->
   </div>
 </template>
 <style>
@@ -260,10 +339,108 @@ const y = ref(0);
 
 const drag = ref(false);
 
+const onResize = (...$event) => {
+  // const { x, y, width, height } = $event;
+
+  console.log(
+    "EVENT X: ",
+    $event[0],
+    "EVENT Y: ",
+    $event[1],
+    "EVENT Width: ",
+    $event[2],
+    "EVENT Height: ",
+    $event[3]
+  );
+  // console.log("EVENT: ", $event[1]);
+  // console.log("EVENT: ", $event[2]);
+  // console.log("EVENT: ", $event[3]);
+
+  // button.width = width;
+  // button.height = height;
+};
+
+// const onResizeStopButton = (...$event) => {
+//   console.log(
+//     `Resize stopped WIDTH: ${$event[2]}, HEIGHT : ${$event[3]}`
+//   );
+// };
+
+const onResizeStop = (
+  x,
+  y,
+  w,
+  h,
+  elementType,
+  sectionId,
+  elementId
+) => {
+  console.log(
+    `resize stop: X: ${x}, Y: ${y}, W: ${w}, H: ${h}, elementType: ${elementType}, sectionId: ${sectionId}, elementId: ${elementId}`
+  );
+  const section = sectionStore.sections.find(
+    (section) => section.id === sectionId
+  );
+  if (section) {
+    if (elementType === "button") {
+      const button = section.buttons.find(
+        (button) => button.id === elementId
+      );
+      if (button) {
+        button.width = w;
+        button.height = h;
+        console.log(
+          "gan thanh cong width height resize ",
+          button.width,
+          button.height
+        );
+      }
+    }
+    if (elementType === "module") {
+      // console.log(
+      //   "resize template",
+      //   elementType + elementId
+      // );
+      const moduleElement = section.modules.find(
+        (template) => template.id === elementId
+      );
+      console.log("MODULE:", moduleElement);
+      if (moduleElement) {
+        console.log(
+          "resize MODULE TRONG ID :",
+          elementId
+        );
+        moduleElement.width = w;
+        moduleElement.height = h;
+        console.log("set rezise successfully");
+      } else {
+        console.log(
+          "Không tìm thấy module với ID:",
+          elementId
+        );
+      }
+    }
+    if (elementType === "paragraph") {
+      const paragraph = section.paragraphs.find(
+        (paragraph) => paragraph.id === elementId
+      );
+      if (paragraph) {
+        paragraph.width = w;
+        paragraph.height = h;
+        console.log(
+          "gan thanh cong width height resize ",
+          paragraph.width,
+          paragraph.height
+        );
+      }
+    }
+  }
+};
+
 const onDrag = (elementType, ...$event) => {
-  console.log("dang keo:", elementType);
-  console.log("EVENT X", $event[0]);
-  console.log("EVENT Y", $event[1]);
+  // console.log("dang keo:", elementType);
+  // console.log("EVENT X", $event[0]);
+  // console.log("EVENT Y", $event[1]);
   dragging.value = true;
   x.value = $event[0];
   y.value = $event[1];
@@ -276,11 +453,11 @@ const onDragStop = (
   sectionId,
   elementId
 ) => {
-  console.log("X:", x);
-  console.log("Y:", y);
-  console.log("elementTypeeeee:", elementType);
-  console.log("sectionId:", sectionId);
-  console.log("elementId:", elementId);
+  // console.log("X:", x);
+  // console.log("Y:", y);
+  // console.log("elementTypeeeee:", elementType);
+  // console.log("sectionId:", sectionId);
+  // console.log("elementId:", elementId);
 
   const section = sectionStore.sections.find(
     (section) => section.id === sectionId
@@ -291,11 +468,11 @@ const onDragStop = (
         (button) => button.id === elementId
       );
       if (button) {
-        console.log("Gán thành công nút", x, y);
+        // console.log("Gán thành công nút", x, y);
         button.left = x;
         button.top = y;
       } else {
-        console.log("Không tìm thấy nút");
+        // console.log("Không tìm thấy nút");
       }
     }
     if (elementType === "paragraph") {
@@ -303,15 +480,15 @@ const onDragStop = (
         (paragraph) => paragraph.id === elementId
       );
       if (paragraph) {
-        console.log(
-          "Gán thành công đoạn văn",
-          x,
-          y
-        );
+        // console.log(
+        //   "Gán thành công đoạn văn",
+        //   x,
+        //   y
+        // );
         paragraph.left = x;
         paragraph.top = y;
       } else {
-        console.log("Không tìm thấy đoạn văn");
+        // console.log("Không tìm thấy đoạn văn");
       }
     }
     if (elementType === "template") {
@@ -404,6 +581,13 @@ const menuClasses = computed(() => {
   };
 });
 
+const menuProperty = computed(() => {
+  return {
+    "right-0": isMenuOpen.value,
+    "-right-[208px]": !isMenuOpen.value,
+  };
+});
+
 const addSection = () => {
   const sectionData = {
     id: sectionStore.sections.length + 1,
@@ -417,7 +601,18 @@ const addSection = () => {
 const handleSectionClick = (sectionId, event) => {
   console.log("section ID clicked: " + sectionId);
 
+  const clickedElement2 = event.target;
   const element = event.currentTarget;
+  if (
+    clickedElement2.classList.contains("section")
+  ) {
+    console.log("Clicked on parent");
+  } else {
+    console.log(
+      "Clicked on children: ",
+      clickedElement2
+    );
+  }
   console.log("Clicked element:", element);
   showMenuElement.value = true;
   selectedSectionId.value = sectionId;

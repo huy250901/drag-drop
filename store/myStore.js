@@ -117,7 +117,7 @@ export const useSectionStore = defineStore({
         const paragraphWithDefaults = {
           ...paragraphData,
           id: section.nextIds.paragraph++,
-          css: "text-black",
+          css: "text-black bg-white",
           type: "paragraph",
           width: "200",
           height: "24",
@@ -152,17 +152,6 @@ export const useSectionStore = defineStore({
             (paragraph) =>
               paragraph.id !== paragraphId
           );
-      }
-    },
-    removeSectionWithButton(sectionId) {
-      const index = this.sections.findIndex(
-        (section) => section.id === sectionId
-      );
-      if (
-        index !== -1 &&
-        this.sections[index].type === "section"
-      ) {
-        this.sections.splice(index, 1);
       }
     },
   },

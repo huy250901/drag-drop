@@ -55,7 +55,10 @@ width: ${button.width}px; height: ${button.height}px`"
             :key="paragraph.id"
             :style="`position: absolute;transform: translate(${paragraph.left}px, ${paragraph.top}px)`"
           >
-            <p :class="paragraph.css">
+            <p
+              :class="paragraph.css"
+              :style="`width: ${paragraph.width}px;height: ${paragraph.height}px`"
+            >
               {{ paragraph.contents }}
             </p>
           </div>
@@ -85,7 +88,7 @@ const route = useRoute();
 onMounted(() => {
   const sections = route.query.sections;
   if (sections) {
-    console.log("dataPreview", sections);
+    // console.log("dataPreview", sections);
     try {
       previewSections.value =
         JSON.parse(sections);
