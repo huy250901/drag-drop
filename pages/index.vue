@@ -103,7 +103,7 @@
       :key="section.id"
       :class="[
         `${section.css} h-[500px]
-        border-2 border-transparent`,
+        border-2 border- bg-slate-500`,
         {
           selected:
             selectedSectionId === section.id,
