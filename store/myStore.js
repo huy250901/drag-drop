@@ -4,6 +4,7 @@ export const useSectionStore = defineStore({
   id: "section",
   state: () => ({
     sections: [],
+    selectedElement: ref(null),
   }),
   actions: {
     initializeNextId(section, type) {
@@ -32,8 +33,8 @@ export const useSectionStore = defineStore({
       const sectionWithDefaults = {
         ...sectionData,
         type: "section",
-        // width: 800,
-        // height: 500,
+        width: "",
+        height: "",
         css: "section relative w-full border-transparent border-2 h-[500px] bg-slate-500",
         buttons: [],
         paragraphs: [],
@@ -154,6 +155,17 @@ export const useSectionStore = defineStore({
             (paragraph) =>
               paragraph.id !== paragraphId
           );
+      }
+    },
+    selectElement(element) {
+      this.selectedElement = { ...element };
+    },
+    updateSelectedElement(updatedFields) {
+      if (this.selectedElement) {
+        this.selectedElement = {
+          ...this.selectedElement,
+          ...updatedFields,
+        };
       }
     },
   },

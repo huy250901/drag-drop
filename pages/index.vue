@@ -44,25 +44,51 @@
           <h2>Element Property</h2>
         </div>
         <div v-if="selectedElement">
+          <h1>{{ selectedElement.type }}</h1>
           <h3>
             Type: {{ selectedElement.type }}
           </h3>
           <h3>ID: {{ selectedElement.id }}</h3>
-          <h3>
-            Width: {{ selectedElement.width }}px
-          </h3>
-          <h3>
-            Height: {{ selectedElement.height }}px
-          </h3>
-          <h3>
-            Text: {{ selectedElement.text }}
-          </h3>
-          <h3>Top: {{ selectedElement.top }}</h3>
-          <h3>
-            Left: {{ selectedElement.left }}
-          </h3>
+          <div>
+            <label>Width: </label>
+            <input
+              type="number"
+              v-model="selectedElement.width"
+              @input="updateElement"
+            />
+            px
+          </div>
+
+          <div>
+            <label>Height: </label>
+            <input
+              type="number"
+              v-model="selectedElement.height"
+              @input="updateElement"
+            />
+            px
+          </div>
+
+          <div>
+            <label>Top: </label>
+            <input
+              type="number"
+              v-model="selectedElement.top"
+              @input="updateElement"
+            />
+          </div>
+
+          <div>
+            <label>Left: </label>
+            <input
+              type="number"
+              v-model="selectedElement.left"
+              @input="updateElement"
+            />
+          </div>
+
           <TinyMce
-            v-model="selectedElementt.text"
+            v-model="selectedElement.text"
           />
         </div>
       </div>
@@ -179,6 +205,10 @@
         :parent="true"
       >
         <button
+          :style="{
+            width: buttonWidth,
+            height: buttonHeight,
+          }"
           :id="button.id"
           :data-type="button.type"
           :data-id="button.id"
@@ -304,6 +334,8 @@
 import { ref, watch } from "vue";
 import IcClose from "./assets/icons/ic_close.vue";
 import { useSectionStore } from "~/store/myStore";
+import { storeToRefs } from "pinia";
+
 import { useRouter } from "vue-router";
 import draggable from "vuedraggable";
 import VueDraggableResizable from "vue-draggable-resizable";
@@ -314,6 +346,32 @@ const isElementProperty = ref(false);
 const router = useRouter();
 const selectedElement = ref(null);
 
+const updateElement = () => {
+  console.log("updateElement");
+  sectionStore.updateSelectedElement({
+    width: selectedElement.value.width,
+    height: selectedElement.value.height,
+    top: selectedElement.value.top,
+    left: selectedElement.value.left,
+    text: selectedElement.value.text,
+  });
+
+  console.log(
+    "Selected element after update:",
+    sectionStore.selectedElement
+  );
+};
+
+watch(
+  selectedElement,
+  (newVal) => {
+    if (newVal) {
+      sectionStore.updateSelectedElement(newVal);
+    }
+  },
+  { deep: true }
+);
+
 // const selectedElement = ref({
 //   sectionId: null,
 //   type: null,
@@ -323,6 +381,18 @@ const showMenuElement = ref(false);
 const selectedSectionId = ref(null);
 
 const sectionStore = useSectionStore();
+
+const preview = () => {
+  const sectionsData = store.sections;
+
+  localStorage.setItem(
+    "previewSections",
+    JSON.stringify(sectionsData)
+  );
+
+  router.push("/previewPage");
+};
+
 const sections = ref(sectionStore.sections);
 const paragraphArray = ref([]);
 const previewSections = ref([]);
@@ -508,16 +578,6 @@ const onDragStop = (
 
   dragging.value = false;
 };
-const preview = () => {
-  router.push({
-    path: "/previewPage",
-    query: {
-      sections: JSON.stringify(
-        storeSections.value
-      ),
-    },
-  });
-};
 
 watch(sections, (newSections, oldSections) => {
   console.log("New sections:", newSections);
@@ -564,9 +624,114 @@ const addSection = () => {
   sectionStore.addSection(sectionData);
 };
 
+// const handleSectionClick = (sectionId, event) => {
+//   const clickedElement = event.target;
+//   const element = event.currentTarget;
+
+//   // Kiểm tra giá trị của clickedElement.dataset.type
+//   console.log(
+//     "Type of clicked element:",
+//     clickedElement.dataset.type
+//   );
+
+//   // Kiểm tra giá trị của element
+//   console.log("Section element:", element);
+
+//   // Lấy giá trị của clickedElement.dataset.id
+//   const elementId = parseInt(
+//     clickedElement.dataset.id,
+//     10
+//   );
+//   console.log(
+//     "ID of clicked element:",
+//     elementId
+//   );
+
+//   if (clickedElement.dataset.type === "section") {
+//     // Gán giá trị cho selectElement trong trường hợp là section
+//     sectionStore.selectElement({
+//       type: "section",
+//       id: sectionId,
+//       width: element.clientWidth,
+//       height: element.clientHeight,
+//       text: "",
+//     });
+//   } else {
+//     // Trường hợp các phần tử khác ngoài section
+//     const section = sectionStore.sections.find(
+//       (s) => s.id === sectionId
+//     );
+//     if (section) {
+//       let selected = null;
+//       switch (clickedElement.dataset.type) {
+//         case "button":
+//           // Tìm phần tử trong mảng buttons
+//           selected = section.buttons.find(
+//             (b) => b.id === elementId
+//           );
+//           if (!selected) {
+//             // Nếu không tìm thấy trong buttons, tìm trong modules
+//             for (const module of section.modules) {
+//               selected = module.buttons.find(
+//                 (b) => b.id === elementId
+//               );
+//               if (selected) break;
+//             }
+//           }
+//           break;
+//         case "paragraph":
+//           selected = section.paragraphs.find(
+//             (p) => p.id === elementId
+//           );
+//           break;
+//         case "template":
+//           selected = section.modules.find(
+//             (m) => m.id === elementId
+//           );
+//           break;
+//         case "module-button":
+//           // Tìm phần tử trong mảng buttons của các modules
+//           for (const module of section.modules) {
+//             selected = module.buttons.find(
+//               (b) => b.id === elementId
+//             );
+//             if (selected) break;
+//           }
+//           break;
+//       }
+
+//       if (selected) {
+//         // Gán giá trị cho selectElement trong trường hợp phần tử được click là button, paragraph, template, hoặc module-button
+//         sectionStore.selectElement({
+//           type: selected.type,
+//           id: selected.id,
+//           width: selected.width,
+//           height: selected.height,
+//           text: selected.contents || "",
+//           top: selected.top || "",
+//           left: selected.left || "",
+//         });
+//         console.log(
+//           "Selected element:",
+//           selected
+//         );
+//       }
+//     }
+//   }
+
+//   // Mở menu property và hiển thị các giá trị
+//   openElementProperty();
+//   showMenuElement.value = true;
+//   selectedSectionId.value = sectionId;
+// };
+
 const handleSectionClick = (sectionId, event) => {
   const clickedElement = event.target;
   const element = event.currentTarget;
+  openElementProperty();
+  showMenuElement.value = true;
+  selectedSectionId.value = sectionId;
+  element.style;
 
   console.log(
     "CLICKED ELEMENT DATA SET: ",
@@ -577,13 +742,27 @@ const handleSectionClick = (sectionId, event) => {
 
   if (clickedElement.dataset.type === "section") {
     console.log("gan section cha ");
-    selectedElement.value = {
+    sectionStore.selectElement({
       type: "section",
       id: sectionId,
       width: element.clientWidth,
       height: element.clientHeight,
       text: "",
-    };
+    });
+    console.log(
+      "element cha sau khi gan width height: ",
+      sectionStore.selectedElement
+    );
+    const dataProperty = (selectedElement.value =
+      {
+        type: "section",
+        id: sectionId,
+        width: element.clientWidth,
+        height: element.clientHeight,
+        text: "",
+      });
+
+    console.log("data Property:", dataProperty);
   }
 
   if (clickedElement.dataset.type) {
@@ -673,10 +852,6 @@ const handleSectionClick = (sectionId, event) => {
       selectedElement.value
     );
   }
-  openElementProperty();
-  showMenuElement.value = true;
-  selectedSectionId.value = sectionId;
-  element.style;
 };
 
 const createParagraph = () => {

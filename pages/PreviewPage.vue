@@ -83,21 +83,14 @@ import VueDraggableResizable from "vue-draggable-resizable";
 const previewSections = ref([]);
 const dataPreview = ref(false);
 
-const route = useRoute();
-
 onMounted(() => {
-  const sections = route.query.sections;
-  if (sections) {
-    // console.log("dataPreview", sections);
-    try {
-      previewSections.value =
-        JSON.parse(sections);
-      if (previewSections.value.length > 0) {
-        dataPreview.value = true;
-      }
-    } catch (e) {
-      console.error("Error parsing sections:", e);
-    }
+  const sectionsData = localStorage.getItem(
+    "previewSections"
+  );
+  if (sectionsData) {
+    previewSections.value =
+      JSON.parse(sectionsData);
+    dataPreview.value = true;
   }
 });
 </script>
