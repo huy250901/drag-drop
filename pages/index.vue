@@ -43,63 +43,22 @@
         >
           <h2>Element Property</h2>
         </div>
-        <div>
-          <h2>Element Property</h2>
-        </div>
-        <div>
-          <h2>Element Property</h2>
+        <div v-if="selectedElement">
+          <h3>
+            Type: {{ selectedElement.type }}
+          </h3>
+          <h3>ID: {{ selectedElement.id }}</h3>
+          <h3>
+            Width: {{ selectedElement.width }}px
+          </h3>
+          <h3>
+            Height: {{ selectedElement.height }}px
+          </h3>
+          <h3>
+            Text: {{ selectedElement.text }}
+          </h3>
         </div>
       </div>
-      <!-- <ul
-        v-if="showMenuElement"
-        class="flex flex-col gap-4 pt-4"
-      >
-        <li>
-          <button
-            class="button bg-white p-2 rounded-md w-full"
-            @click="addSection"
-            id="createSectionBtn"
-          >
-            Create Section
-          </button>
-        </li>
-
-        <li>
-          <button
-            class="bg-white p-2 rounded-md w-full"
-            @click="createButton"
-          >
-            Add Button
-          </button>
-        </li>
-        <li>
-          <button
-            class="bg-white p-2 rounded-md w-full"
-            @click="createParagraph"
-          >
-            Add paragraph
-          </button>
-        </li>
-        <li>
-          <button
-            class="bg-white p-2 rounded-md w-full"
-            @click="createTemplate"
-          >
-            Add template
-          </button>
-        </li>
-      </ul>
-      <ul v-else class="flex flex-col gap-4 pt-4">
-        <li>
-          <button
-            class="button bg-white p-2 rounded-md w-full"
-            @click="addSection"
-            id="createSectionBtn"
-          >
-            Create Section
-          </button>
-        </li>
-      </ul> -->
     </div>
     <div
       :class="menuClasses"
@@ -167,6 +126,8 @@
         handleSectionClick(section.id, $event)
       "
       :key="section.id"
+      :data-type="section.type"
+      :data-id="section.id"
       :class="[
         `${section.css} h-[500px]
         border-2 border- bg-slate-500`,
@@ -211,14 +172,10 @@
         :parent="true"
       >
         <button
+          :id="button.id"
+          :data-type="button.type"
+          :data-id="button.id"
           :class="`${button.css}`"
-          @click="
-            selectElement(
-              section.id,
-              'button',
-              button.id
-            )
-          "
         >
           {{ `${button.contents}` }}
         </button>
@@ -258,13 +215,18 @@
         "
       >
         <div
+          :data-type="moduleBtn.type"
+          :data-id="moduleBtn.id"
           :class="`w-full h-full ${moduleBtn.css}`"
         >
           <button
             v-for="btn in moduleBtn.buttons"
             :key="btn.id"
+            :id="btn.id"
             :class="`${btn.css}`"
             :style="`width: ${btn.width}px; height: ${btn.height}px`"
+            :data-type="btn.type"
+            :data-id="btn.id"
           >
             {{ btn.contents }}
           </button>
@@ -306,15 +268,10 @@
         :parent="true"
       >
         <p
-          :id="'paragraph-' + paragraph.id"
+          :id="paragraph.id"
           :class="`w-full h-full ${paragraph.css}`"
-          @click="
-            selectElement(
-              section.id,
-              'paragraph',
-              paragraph.id
-            )
-          "
+          :data-type="paragraph.type"
+          :data-id="paragraph.id"
         >
           {{ paragraph.contents }}
         </p>
@@ -348,11 +305,13 @@ const store = useSectionStore();
 const isMenuOpen = ref(false);
 const isElementProperty = ref(false);
 const router = useRouter();
-const selectedElement = ref({
-  sectionId: null,
-  type: null,
-  elementId: null,
-});
+const selectedElement = ref(null);
+
+// const selectedElement = ref({
+//   sectionId: null,
+//   type: null,
+//   elementId: null,
+// });
 const showMenuElement = ref(false);
 const selectedSectionId = ref(null);
 
@@ -544,17 +503,17 @@ const preview = () => {
   });
 };
 
-const selectElement = (
-  sectionId,
-  type,
-  elementId
-) => {
-  selectedElement.value = {
-    sectionId: sectionId,
-    type: type,
-    elementId: elementId,
-  };
-};
+// const selectElement = (
+//   sectionId,
+//   type,
+//   elementId
+// ) => {
+//   selectedElement.value = {
+//     sectionId: sectionId,
+//     type: type,
+//     elementId: elementId,
+//   };
+// };
 
 watch(sections, (newSections, oldSections) => {
   console.log("New sections:", newSections);
@@ -601,28 +560,226 @@ const addSection = () => {
   sectionStore.addSection(sectionData);
 };
 
-const handleSectionClick = (sectionId, event) => {
-  console.log("section ID clicked: " + sectionId);
+// const handleSectionClick = (sectionId, event) => {
+//   console.log("section ID clicked: " + sectionId);
 
-  const clickedElement2 = event.target;
+//   const clickedElement2 = event.target;
+//   const element = event.currentTarget;
+//   if (
+//     clickedElement2.classList.contains("section")
+//   ) {
+//     openElementProperty();
+//     console.log("Clicked on parent");
+//   } else {
+//     openElementProperty();
+//     console.log(
+//       "Clicked on children: ",
+//       clickedElement2
+//     );
+//   }
+//   console.log("Clicked element:", element);
+//   showMenuElement.value = true;
+//   selectedSectionId.value = sectionId;
+//   element.style;
+// };
+
+const handleSectionClick = (sectionId, event) => {
+  const clickedElement = event.target;
   const element = event.currentTarget;
-  if (
-    clickedElement2.classList.contains("section")
+
+  console.log(
+    "CLICKED ELEMENT DATA SET: ",
+    clickedElement.dataset.type,
+    " CLICKED ELEMENT ID: ",
+    clickedElement.dataset.id
+  );
+
+  if (clickedElement.dataset.type === "section") {
+    console.log("gan section cha ");
+    selectedElement.value = {
+      type: "section",
+      id: sectionId,
+      width: element.clientWidth,
+      height: element.clientHeight,
+      text: "",
+    };
+  }
+
+  if (clickedElement.dataset.type) {
+    const elementType =
+      clickedElement.dataset.type;
+    const elementId = parseInt(
+      clickedElement.dataset.id,
+      10
+    );
+
+    const section = sectionStore.sections.find(
+      (s) => s.id === sectionId
+    );
+    console.log("section: ", section); // In ra thông tin của section
+    if (section) {
+      console.log("section cha ");
+      let selected = null;
+
+      console.log(
+        "ELEMENT TYPE CLICK : ",
+        elementType
+      );
+      switch (elementType) {
+        case "button":
+          selected = section.buttons.find(
+            (b) => b.id === elementId
+          );
+          if (!selected) {
+            for (const module of section.modules) {
+              selected = module.buttons.find(
+                (b) => b.id === elementId
+              );
+              if (selected) break;
+            }
+          }
+          break;
+        case "paragraph":
+          selected = section.paragraphs.find(
+            (p) => p.id === elementId
+          );
+          break;
+        case "template":
+          selected = section.modules.find(
+            (m) => m.id === elementId
+          );
+          break;
+        case "module-button":
+          for (const module of section.modules) {
+            selected = module.buttons.find(
+              (b) => b.id === elementId
+            );
+            if (selected) break;
+          }
+          break;
+      }
+
+      if (selected) {
+        selectedElement.value = {
+          type: selected.type,
+          id: selected.id,
+          width: selected.width,
+          height: selected.height,
+          text: selected.contents || "",
+        };
+        console.log(
+          "DATA SET :",
+          selectedElement._value
+        );
+      }
+    }
+  } else if (
+    clickedElement.classList.contains("section")
   ) {
-    openElementProperty();
-    console.log("Clicked on parent");
-  } else {
-    openElementProperty();
+    // Xử lý khi click vào section
+    console.log("gan ssection cha ");
+    selectedElement.value = {
+      type: "section",
+      id: sectionId,
+      width: element.clientWidth,
+      height: element.clientHeight,
+      text: "",
+    };
+
     console.log(
-      "Clicked on children: ",
-      clickedElement2
+      "SELECT ELEMENT VALUE: ",
+      selectedElement.value
     );
   }
-  console.log("Clicked element:", element);
+  openElementProperty();
   showMenuElement.value = true;
   selectedSectionId.value = sectionId;
   element.style;
 };
+
+// const handleSectionClick = (sectionId, event) => {
+//   const clickedElement = event.target;
+//   const element = event.currentTarget;
+
+//   console.log(
+//     "CLICKED ELEMENT DATA SET: ",
+//     clickedElement.dataset.type,
+//     " CLICKED ELEMENT ID: ",
+//     clickedElement.dataset.id
+//   );
+
+//   if (clickedElement.dataset.type) {
+//     const elementType =
+//       clickedElement.dataset.type;
+//     const elementId = parseInt(
+//       clickedElement.dataset.id,
+//       10
+//     );
+
+//     const section = sectionStore.sections.find(
+//       (s) => s.id === sectionId
+//     );
+//     console.log("section: ", section); // In ra thông tin của section
+//     if (section) {
+//       let selected = null;
+
+//       switch (elementType) {
+//         case "button":
+//           selected = section.buttons.find(
+//             (b) => b.id === elementId
+//           );
+//           if (!selected) {
+//             for (const module of section.modules) {
+//               selected = module.buttons.find(
+//                 (b) => b.id === elementId
+//               );
+//               if (selected) break;
+//             }
+//           }
+//           break;
+//         case "paragraph":
+//           selected = section.paragraphs.find(
+//             (p) => p.id === elementId
+//           );
+//           break;
+//         case "module":
+//           selected = section.modules.find(
+//             (m) => m.id === elementId
+//           );
+//           break;
+//       }
+
+//       if (selected) {
+//         selectedElement.value = {
+//           type: selected.type,
+//           id: selected.id,
+//           width: selected.width,
+//           height: selected.height,
+//           text: selected.contents || "",
+//         };
+//       }
+//     }
+//   } else if (
+//     clickedElement.classList.contains("section")
+//   ) {
+//     // Xử lý khi click vào section
+//     selectedElement.value = {
+//       type: "section",
+//       id: sectionId,
+//       width: element.clientWidth,
+//       height: element.clientHeight,
+//       text: "",
+//     };
+//   }
+//   console.log(
+//     "SELECT ELEMENT VALUE: ",
+//     selectedElement.value
+//   );
+//   openElementProperty();
+//   showMenuElement.value = true;
+//   selectedSectionId.value = sectionId;
+//   element.style;
+// };
 
 const createParagraph = () => {
   if (selectedSectionId.value !== null) {
@@ -723,75 +880,75 @@ document.addEventListener("click", (event) => {
   }
 });
 
-const deleteElement = () => {
-  console.log("khong co element de xoa");
-  if (
-    selectedElement.value.sectionId &&
-    selectedElement.value.type === "button"
-  ) {
-    const sectionIndex =
-      sectionStore.sections.findIndex(
-        (section) =>
-          section.id ===
-          selectedElement.value.sectionId
-      );
-    if (sectionIndex !== -1) {
-      const buttonIndex = sectionStore.sections[
-        sectionIndex
-      ].buttons.findIndex(
-        (button) =>
-          button.id ===
-          selectedElement.value.elementId
-      );
-      if (buttonIndex !== -1) {
-        console.log(
-          "xoa element ID: " +
-            selectedElement.value.elementId,
-          "ELEMENT TYPE:",
-          selectedElement.value
-        );
-        sectionStore.removeButtonFromSection(
-          selectedElement.value.sectionId,
-          selectedElement.value.elementId
-        );
-      }
-    }
-  } else if (
-    selectedElement.value.sectionId &&
-    selectedElement.value.type === "paragraph"
-  ) {
-    const sectionIndex =
-      sectionStore.sections.findIndex(
-        (section) =>
-          section.id ===
-          selectedElement.value.sectionId
-      );
-    if (sectionIndex !== -1) {
-      const paragraphIndex =
-        sectionStore.sections[
-          sectionIndex
-        ].paragraphs.findIndex(
-          (paragraph) =>
-            paragraph.id ===
-            selectedElement.value.elementId
-        );
-      if (paragraphIndex !== -1) {
-        console.log(
-          "xoa element: " +
-            selectedElement.value.elementId
-        );
-        sectionStore.removeParagraphFromSection(
-          selectedElement.value.sectionId,
-          selectedElement.value.elementId
-        );
-      }
-    }
-  }
-  console.log(sections, "data sau khi xoa");
-  selectedElement.value = {
-    sectionId: null,
-    type: null,
-    elementId: null,
-  };
-};
+// const deleteElement = () => {
+//   console.log("khong co element de xoa");
+//   if (
+//     selectedElement.value.sectionId &&
+//     selectedElement.value.type === "button"
+//   ) {
+//     const sectionIndex =
+//       sectionStore.sections.findIndex(
+//         (section) =>
+//           section.id ===
+//           selectedElement.value.sectionId
+//       );
+//     if (sectionIndex !== -1) {
+//       const buttonIndex = sectionStore.sections[
+//         sectionIndex
+//       ].buttons.findIndex(
+//         (button) =>
+//           button.id ===
+//           selectedElement.value.elementId
+//       );
+//       if (buttonIndex !== -1) {
+//         console.log(
+//           "xoa element ID: " +
+//             selectedElement.value.elementId,
+//           "ELEMENT TYPE:",
+//           selectedElement.value
+//         );
+//         sectionStore.removeButtonFromSection(
+//           selectedElement.value.sectionId,
+//           selectedElement.value.elementId
+//         );
+//       }
+//     }
+//   } else if (
+//     selectedElement.value.sectionId &&
+//     selectedElement.value.type === "paragraph"
+//   ) {
+//     const sectionIndex =
+//       sectionStore.sections.findIndex(
+//         (section) =>
+//           section.id ===
+//           selectedElement.value.sectionId
+//       );
+//     if (sectionIndex !== -1) {
+//       const paragraphIndex =
+//         sectionStore.sections[
+//           sectionIndex
+//         ].paragraphs.findIndex(
+//           (paragraph) =>
+//             paragraph.id ===
+//             selectedElement.value.elementId
+//         );
+//       if (paragraphIndex !== -1) {
+//         console.log(
+//           "xoa element: " +
+//             selectedElement.value.elementId
+//         );
+//         sectionStore.removeParagraphFromSection(
+//           selectedElement.value.sectionId,
+//           selectedElement.value.elementId
+//         );
+//       }
+//     }
+//   }
+//   console.log(sections, "data sau khi xoa");
+//   selectedElement.value = {
+//     sectionId: null,
+//     type: null,
+//     elementId: null,
+//   };
+// };
 </script>

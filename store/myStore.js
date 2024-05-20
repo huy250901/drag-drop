@@ -32,6 +32,8 @@ export const useSectionStore = defineStore({
       const sectionWithDefaults = {
         ...sectionData,
         type: "section",
+        // width: 800,
+        // height: 500,
         css: "section relative w-full border-transparent border-2 h-[500px] bg-slate-500",
         buttons: [],
         paragraphs: [],
@@ -49,7 +51,7 @@ export const useSectionStore = defineStore({
         const newSection = {
           type: "template",
           id: section.nextIds.module++,
-          css: "bg-blue-500 flex justify-center rounded-md items-center",
+          css: "bg-red-500 flex justify-center rounded-md items-center",
           width: "200",
           height: "100",
           left: "",
@@ -67,7 +69,7 @@ export const useSectionStore = defineStore({
         );
         newSection.buttons.push({
           id: newSection.nextIds.button++,
-          type: "button",
+          type: "module-button",
           width: "100",
           height: "50",
           contents: "Button in section",
