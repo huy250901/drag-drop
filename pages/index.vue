@@ -3,18 +3,12 @@
     <header
       class="bg-slate-400 h-16 items-center flex sticky z-50 top-0 px-4 justify-between"
     >
-      <!-- <vue-draggable-resizable
-        :w="50"
-        :h="50"
-        :parent="true"
-      > -->
       <button
         @click="openMenu"
         class="px-4 bg-slate-200 p-2 rounded-md"
       >
         Menu
       </button>
-      <!-- </vue-draggable-resizable> -->
       <button
         :class="{
           'bg-red-500': selectedElement,
@@ -37,13 +31,25 @@
 
     <div
       :class="menuProperty"
-      class="menuRight fixed z-[1000] top-0 w-52 h-full bg-gray-400 p-4"
+      class="menuRight fixed z-[1000] top-0 w-52 h-full bg-gray-200 p-4"
     >
       <IcClose
         @click="closeElementProperty()"
         class="cursor-pointer absolute top-2 right-2"
       />
-      <h2>hello</h2>
+      <div class="flex flex-col rounded-md mt-3">
+        <div
+          class="bg-slate-200 rounded-md flex justify-center p-2"
+        >
+          <h2>Element Property</h2>
+        </div>
+        <div>
+          <h2>Element Property</h2>
+        </div>
+        <div>
+          <h2>Element Property</h2>
+        </div>
+      </div>
       <!-- <ul
         v-if="showMenuElement"
         class="flex flex-col gap-4 pt-4"
