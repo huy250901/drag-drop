@@ -57,6 +57,13 @@
           <h3>
             Text: {{ selectedElement.text }}
           </h3>
+          <h3>Top: {{ selectedElement.top }}</h3>
+          <h3>
+            Left: {{ selectedElement.left }}
+          </h3>
+          <TinyMce
+            v-model="selectedElementt.text"
+          />
         </div>
       </div>
     </div>
@@ -175,7 +182,7 @@
           :id="button.id"
           :data-type="button.type"
           :data-id="button.id"
-          :class="`${button.css}`"
+          :class="`${button.css} bg-emerald-500`"
         >
           {{ `${button.contents}` }}
         </button>
@@ -223,7 +230,7 @@
             v-for="btn in moduleBtn.buttons"
             :key="btn.id"
             :id="btn.id"
-            :class="`${btn.css}`"
+            :class="`${btn.css} bg-emerald-500`"
             :style="`width: ${btn.width}px; height: ${btn.height}px`"
             :data-type="btn.type"
             :data-id="btn.id"
@@ -300,7 +307,7 @@ import { useSectionStore } from "~/store/myStore";
 import { useRouter } from "vue-router";
 import draggable from "vuedraggable";
 import VueDraggableResizable from "vue-draggable-resizable";
-
+import TinyMce from "./TinyMce.vue";
 const store = useSectionStore();
 const isMenuOpen = ref(false);
 const isElementProperty = ref(false);
@@ -326,6 +333,15 @@ const y = ref(0);
 
 const drag = ref(false);
 
+const selectedElementt = ref({
+  type: "div",
+  id: "example",
+  width: 200,
+  height: 100,
+  text: "Initial text",
+  top: 50,
+  left: 50,
+});
 const onResize = (...$event) => {
   // const { x, y, width, height } = $event;
 
@@ -503,18 +519,6 @@ const preview = () => {
   });
 };
 
-// const selectElement = (
-//   sectionId,
-//   type,
-//   elementId
-// ) => {
-//   selectedElement.value = {
-//     sectionId: sectionId,
-//     type: type,
-//     elementId: elementId,
-//   };
-// };
-
 watch(sections, (newSections, oldSections) => {
   console.log("New sections:", newSections);
   console.log("Old sections:", oldSections);
@@ -559,29 +563,6 @@ const addSection = () => {
   };
   sectionStore.addSection(sectionData);
 };
-
-// const handleSectionClick = (sectionId, event) => {
-//   console.log("section ID clicked: " + sectionId);
-
-//   const clickedElement2 = event.target;
-//   const element = event.currentTarget;
-//   if (
-//     clickedElement2.classList.contains("section")
-//   ) {
-//     openElementProperty();
-//     console.log("Clicked on parent");
-//   } else {
-//     openElementProperty();
-//     console.log(
-//       "Clicked on children: ",
-//       clickedElement2
-//     );
-//   }
-//   console.log("Clicked element:", element);
-//   showMenuElement.value = true;
-//   selectedSectionId.value = sectionId;
-//   element.style;
-// };
 
 const handleSectionClick = (sectionId, event) => {
   const clickedElement = event.target;
@@ -666,6 +647,8 @@ const handleSectionClick = (sectionId, event) => {
           width: selected.width,
           height: selected.height,
           text: selected.contents || "",
+          top: selected.top || "",
+          left: selected.left || "",
         };
         console.log(
           "DATA SET :",
@@ -676,8 +659,7 @@ const handleSectionClick = (sectionId, event) => {
   } else if (
     clickedElement.classList.contains("section")
   ) {
-    // Xử lý khi click vào section
-    console.log("gan ssection cha ");
+    console.log("gan section cha ");
     selectedElement.value = {
       type: "section",
       id: sectionId,
@@ -696,90 +678,6 @@ const handleSectionClick = (sectionId, event) => {
   selectedSectionId.value = sectionId;
   element.style;
 };
-
-// const handleSectionClick = (sectionId, event) => {
-//   const clickedElement = event.target;
-//   const element = event.currentTarget;
-
-//   console.log(
-//     "CLICKED ELEMENT DATA SET: ",
-//     clickedElement.dataset.type,
-//     " CLICKED ELEMENT ID: ",
-//     clickedElement.dataset.id
-//   );
-
-//   if (clickedElement.dataset.type) {
-//     const elementType =
-//       clickedElement.dataset.type;
-//     const elementId = parseInt(
-//       clickedElement.dataset.id,
-//       10
-//     );
-
-//     const section = sectionStore.sections.find(
-//       (s) => s.id === sectionId
-//     );
-//     console.log("section: ", section); // In ra thông tin của section
-//     if (section) {
-//       let selected = null;
-
-//       switch (elementType) {
-//         case "button":
-//           selected = section.buttons.find(
-//             (b) => b.id === elementId
-//           );
-//           if (!selected) {
-//             for (const module of section.modules) {
-//               selected = module.buttons.find(
-//                 (b) => b.id === elementId
-//               );
-//               if (selected) break;
-//             }
-//           }
-//           break;
-//         case "paragraph":
-//           selected = section.paragraphs.find(
-//             (p) => p.id === elementId
-//           );
-//           break;
-//         case "module":
-//           selected = section.modules.find(
-//             (m) => m.id === elementId
-//           );
-//           break;
-//       }
-
-//       if (selected) {
-//         selectedElement.value = {
-//           type: selected.type,
-//           id: selected.id,
-//           width: selected.width,
-//           height: selected.height,
-//           text: selected.contents || "",
-//         };
-//       }
-//     }
-//   } else if (
-//     clickedElement.classList.contains("section")
-//   ) {
-//     // Xử lý khi click vào section
-//     selectedElement.value = {
-//       type: "section",
-//       id: sectionId,
-//       width: element.clientWidth,
-//       height: element.clientHeight,
-//       text: "",
-//     };
-//   }
-//   console.log(
-//     "SELECT ELEMENT VALUE: ",
-//     selectedElement.value
-//   );
-//   openElementProperty();
-//   showMenuElement.value = true;
-//   selectedSectionId.value = sectionId;
-//   element.style;
-// };
 
 const createParagraph = () => {
   if (selectedSectionId.value !== null) {
@@ -879,76 +777,4 @@ document.addEventListener("click", (event) => {
     closeElementProperty();
   }
 });
-
-// const deleteElement = () => {
-//   console.log("khong co element de xoa");
-//   if (
-//     selectedElement.value.sectionId &&
-//     selectedElement.value.type === "button"
-//   ) {
-//     const sectionIndex =
-//       sectionStore.sections.findIndex(
-//         (section) =>
-//           section.id ===
-//           selectedElement.value.sectionId
-//       );
-//     if (sectionIndex !== -1) {
-//       const buttonIndex = sectionStore.sections[
-//         sectionIndex
-//       ].buttons.findIndex(
-//         (button) =>
-//           button.id ===
-//           selectedElement.value.elementId
-//       );
-//       if (buttonIndex !== -1) {
-//         console.log(
-//           "xoa element ID: " +
-//             selectedElement.value.elementId,
-//           "ELEMENT TYPE:",
-//           selectedElement.value
-//         );
-//         sectionStore.removeButtonFromSection(
-//           selectedElement.value.sectionId,
-//           selectedElement.value.elementId
-//         );
-//       }
-//     }
-//   } else if (
-//     selectedElement.value.sectionId &&
-//     selectedElement.value.type === "paragraph"
-//   ) {
-//     const sectionIndex =
-//       sectionStore.sections.findIndex(
-//         (section) =>
-//           section.id ===
-//           selectedElement.value.sectionId
-//       );
-//     if (sectionIndex !== -1) {
-//       const paragraphIndex =
-//         sectionStore.sections[
-//           sectionIndex
-//         ].paragraphs.findIndex(
-//           (paragraph) =>
-//             paragraph.id ===
-//             selectedElement.value.elementId
-//         );
-//       if (paragraphIndex !== -1) {
-//         console.log(
-//           "xoa element: " +
-//             selectedElement.value.elementId
-//         );
-//         sectionStore.removeParagraphFromSection(
-//           selectedElement.value.sectionId,
-//           selectedElement.value.elementId
-//         );
-//       }
-//     }
-//   }
-//   console.log(sections, "data sau khi xoa");
-//   selectedElement.value = {
-//     sectionId: null,
-//     type: null,
-//     elementId: null,
-//   };
-// };
 </script>
