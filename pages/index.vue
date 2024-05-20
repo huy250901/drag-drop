@@ -37,13 +37,14 @@
 
     <div
       :class="menuProperty"
-      class="menuLeft fixed z-[1000] top-0 w-52 h-full bg-gray-400 p-4"
+      class="menuRight fixed z-[1000] top-0 w-52 h-full bg-gray-400 p-4"
     >
       <IcClose
-        @click="closeMenu"
+        @click="closeElementProperty()"
         class="cursor-pointer absolute top-2 right-2"
       />
-      <ul
+      <h2>hello</h2>
+      <!-- <ul
         v-if="showMenuElement"
         class="flex flex-col gap-4 pt-4"
       >
@@ -92,7 +93,7 @@
             Create Section
           </button>
         </li>
-      </ul>
+      </ul> -->
     </div>
     <div
       :class="menuClasses"
@@ -320,6 +321,10 @@
   transition: 0.3s ease-in-out;
 }
 
+.menuRight {
+  transition: 0.3s ease-in-out;
+}
+
 .selected {
   border: 2px dotted white;
 }
@@ -333,6 +338,23 @@ import { useRouter } from "vue-router";
 import draggable from "vuedraggable";
 import VueDraggableResizable from "vue-draggable-resizable";
 
+const store = useSectionStore();
+const isMenuOpen = ref(false);
+const isElementProperty = ref(false);
+const router = useRouter();
+const selectedElement = ref({
+  sectionId: null,
+  type: null,
+  elementId: null,
+});
+const showMenuElement = ref(false);
+const selectedSectionId = ref(null);
+
+const sectionStore = useSectionStore();
+const sections = ref(sectionStore.sections);
+const paragraphArray = ref([]);
+const previewSections = ref([]);
+const storeSections = ref(sectionStore.sections);
 const dragging = ref(false);
 const x = ref(0);
 const y = ref(0);
@@ -352,19 +374,7 @@ const onResize = (...$event) => {
     "EVENT Height: ",
     $event[3]
   );
-  // console.log("EVENT: ", $event[1]);
-  // console.log("EVENT: ", $event[2]);
-  // console.log("EVENT: ", $event[3]);
-
-  // button.width = width;
-  // button.height = height;
 };
-
-// const onResizeStopButton = (...$event) => {
-//   console.log(
-//     `Resize stopped WIDTH: ${$event[2]}, HEIGHT : ${$event[3]}`
-//   );
-// };
 
 const onResizeStop = (
   x,
@@ -488,7 +498,6 @@ const onDragStop = (
         paragraph.left = x;
         paragraph.top = y;
       } else {
-        // console.log("Không tìm thấy đoạn văn");
       }
     }
     if (elementType === "template") {
@@ -518,26 +527,6 @@ const onDragStop = (
 
   dragging.value = false;
 };
-
-const store = useSectionStore();
-
-const isMenuOpen = ref(false);
-const router = useRouter();
-const selectedElement = ref({
-  sectionId: null,
-  type: null,
-  elementId: null,
-});
-const showMenuElement = ref(false);
-const selectedSectionId = ref(null);
-
-const sectionStore = useSectionStore();
-// const sections = sectionStore.sections;
-const sections = ref(sectionStore.sections);
-const paragraphArray = ref([]);
-
-const previewSections = ref([]);
-const storeSections = ref(sectionStore.sections);
 const preview = () => {
   router.push({
     path: "/previewPage",
@@ -581,10 +570,18 @@ const menuClasses = computed(() => {
   };
 });
 
+function openElementProperty() {
+  isElementProperty.value = true;
+}
+
+function closeElementProperty() {
+  isElementProperty.value = false;
+}
+
 const menuProperty = computed(() => {
   return {
-    "right-0": isMenuOpen.value,
-    "-right-[208px]": !isMenuOpen.value,
+    "right-0": isElementProperty.value,
+    "-right-[208px]": !isElementProperty.value,
   };
 });
 
@@ -606,8 +603,10 @@ const handleSectionClick = (sectionId, event) => {
   if (
     clickedElement2.classList.contains("section")
   ) {
+    openElementProperty();
     console.log("Clicked on parent");
   } else {
+    openElementProperty();
     console.log(
       "Clicked on children: ",
       clickedElement2
@@ -708,107 +707,15 @@ document.addEventListener("click", (event) => {
   ) {
     showMenuElement.value = false;
   }
+
+  if (
+    !target.closest(".section") &&
+    !target.closest(".menuLeft") &&
+    !target.closest(".menuRight")
+  ) {
+    closeElementProperty();
+  }
 });
-
-// const startDrag = (
-//   event,
-//   sectionId,
-//   elementId,
-//   elementType
-// ) => {
-//   const element = event.target;
-//   const sectionElement =
-//     element.closest(".section");
-//   const sectionRect =
-//     sectionElement.getBoundingClientRect();
-//   const initialX = event.clientX;
-//   const initialY = event.clientY;
-//   const offsetX = element.offsetLeft;
-//   const offsetY = element.offsetTop;
-
-//   const onMouseMove = (moveEvent) => {
-//     const deltaX = moveEvent.clientX - initialX;
-//     const deltaY = moveEvent.clientY - initialY;
-//     let newLeft = offsetX + deltaX;
-//     let newTop = offsetY + deltaY;
-
-//     const elementRect =
-//       element.getBoundingClientRect();
-//     if (newLeft < 0) newLeft = 0;
-//     if (newTop < 0) newTop = 0;
-//     if (
-//       newLeft + elementRect.width >
-//       sectionRect.width
-//     )
-//       newLeft =
-//         sectionRect.width - elementRect.width;
-//     if (
-//       newTop + elementRect.height >
-//       sectionRect.height
-//     )
-//       newTop =
-//         sectionRect.height - elementRect.height;
-
-//     element.style.left = `${newLeft}px`;
-//     element.style.top = `${newTop}px`;
-
-//     const section = sectionStore.sections.find(
-//       (section) => section.id === sectionId
-//     );
-
-//     if (elementType === "button") {
-//       console.log("keo button");
-//       const button = section.buttons.find(
-//         (button) => button.id === elementId
-//       );
-//       button.left = newLeft;
-//       button.top = newTop;
-//       button.css = `absolute bg-blue-500 text-white rounded px-4 py-2 left-[${newLeft}px] top-[${newTop}px]`;
-//     } else if (elementType === "paragraph") {
-//       console.log("keo paragraph");
-
-//       const paragraph = section.paragraphs.find(
-//         (paragraph) => paragraph.id === elementId
-//       );
-//       paragraph.left = newLeft;
-//       paragraph.top = newTop;
-//       paragraph.css = `absolute left-[${newLeft}px] top-[${newTop}px]`;
-//     } else if (elementType === "section") {
-//       console.log("keo section");
-
-//       console.log(
-//         "SECTION MODULES ARRAY",
-//         section.modules[elementId - 1]
-//       );
-//       console.log("element ID", elementId);
-
-//       //     const foundModule = section.modules.find(
-//       // (module) => module.id === elementId);
-//       const foundModule =
-//         section.modules[elementId - 1];
-//       foundModule.left = newLeft;
-//       foundModule.top = newTop;
-//       foundModule.css = `absolute bg-slate-300 w-[200px] h-[100px] flex justify-center items-center left-[${newLeft}px] top-[${newTop}px]`;
-//     }
-//   };
-
-//   const onMouseUp = () => {
-//     document.removeEventListener(
-//       "mousemove",
-//       onMouseMove
-//     );
-//     document.removeEventListener(
-//       "mouseup",
-//       onMouseUp
-//     );
-//   };
-
-//   document.addEventListener(
-//     "mousemove",
-//     onMouseMove
-//   );
-//   document.addEventListener("mouseup", onMouseUp);
-// };
 
 const deleteElement = () => {
   console.log("khong co element de xoa");
