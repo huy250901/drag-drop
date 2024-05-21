@@ -1,7 +1,7 @@
 // TinyMCEEditor.vue
 <template>
   <Editor
-    api-key="im553e0dg7ie5sse6op3k4zy8eptalk4mj47c3bx32z0upwb"
+    :api-key="apiKey"
     v-model="content"
     :init="{
       height: 200,
@@ -20,6 +20,8 @@ import Editor from "@tinymce/tinymce-vue";
 
 const props = defineProps({
   modelValue: String,
+  apiKey:
+    "im553e0dg7ie5sse6op3k4zy8eptalk4mj47c3bx32z0upwb",
 });
 
 const emit = defineEmits(["update:modelValue"]);

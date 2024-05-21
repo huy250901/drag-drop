@@ -4,7 +4,6 @@ export const useSectionStore = defineStore({
   id: "section",
   state: () => ({
     sections: [],
-    selectedElement: ref(null),
   }),
   actions: {
     initializeNextId(section, type) {
@@ -120,6 +119,7 @@ export const useSectionStore = defineStore({
         const paragraphWithDefaults = {
           ...paragraphData,
           id: section.nextIds.paragraph++,
+          contents: "paragraph",
           css: "text-black bg-white",
           type: "paragraph",
           width: "200",
@@ -157,15 +157,54 @@ export const useSectionStore = defineStore({
           );
       }
     },
-    selectElement(element) {
-      this.selectedElement = { ...element };
+    removeSectionWithButton(sectionId, moduleId) {
+      const section = this.sections.find(
+        (s) => s.id === sectionId
+      );
+
+      if (section) {
+        section.modules = section.modules.filter(
+          (module) => module.id !== moduleId
+        );
+      }
     },
-    updateSelectedElement(updatedFields) {
-      if (this.selectedElement) {
-        this.selectedElement = {
-          ...this.selectedElement,
-          ...updatedFields,
-        };
+    removeSectionWithButton(sectionId, moduleId) {
+      const section = this.sections.find(
+        (s) => s.id === sectionId
+      );
+      if (section) {
+        section.modules = section.modules.filter(
+          (module) => module.id !== moduleId
+        );
+      }
+    },
+    updateParagraphContent(
+      id,
+      newContent,
+      newWidth,
+      newHeight
+    ) {
+      console.log("STORE PARAGRAPH ID:", id);
+      console.log("STORE CONTENT:", newContent);
+      console.log("STORE WIDTH:", newWidth);
+      console.log("STORE HEIGHT:", newHeight);
+      const paragraph = this.sections
+        .flatMap((section) => section.paragraphs)
+        .find((p) => p.id === id);
+
+      if (paragraph) {
+        paragraph.contents = newContent;
+        paragraph.width = newWidth;
+        paragraph.height = newHeight;
+        console.log(
+          "width current",
+          paragraph.width
+        );
+        console.log(
+          "height current",
+          paragraph.height
+        );
+        // paragraph.height = newHeight;
       }
     },
   },

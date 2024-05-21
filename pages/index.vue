@@ -16,7 +16,12 @@
         }"
         class="px-4 p-2 rounded-md"
         :disabled="!selectedElement"
-        @click="deleteElement"
+        @click="
+          removeElement(
+            selectedSectionId,
+            selectedElement
+          )
+        "
       >
         Xóa
       </button>
@@ -44,7 +49,6 @@
           <h2>Element Property</h2>
         </div>
         <div v-if="selectedElement">
-          <h1>{{ selectedElement.type }}</h1>
           <h3>
             Type: {{ selectedElement.type }}
           </h3>
@@ -54,7 +58,11 @@
             <input
               type="number"
               v-model="selectedElement.width"
-              @input="updateElement"
+              @input="
+                updateElementContent(
+                  selectedElement
+                )
+              "
             />
             px
           </div>
@@ -64,32 +72,34 @@
             <input
               type="number"
               v-model="selectedElement.height"
-              @input="updateElement"
+              @input="
+                updateElementContent(
+                  selectedElement
+                )
+              "
             />
             px
           </div>
 
           <div>
-            <label>Top: </label>
+            <label>Text: </label>
             <input
-              type="number"
-              v-model="selectedElement.top"
-              @input="updateElement"
+              type="text"
+              v-model="selectedElement.text"
+              @input="
+                updateElementContent(
+                  selectedElement
+                )
+              "
             />
           </div>
 
-          <div>
-            <label>Left: </label>
-            <input
-              type="number"
-              v-model="selectedElement.left"
-              @input="updateElement"
-            />
-          </div>
-
-          <TinyMce
+          <!-- <TinyMce
+            updateElementContent(
+                  selectedElement
+                )
             v-model="selectedElement.text"
-          />
+          /> -->
         </div>
       </div>
     </div>
@@ -205,10 +215,6 @@
         :parent="true"
       >
         <button
-          :style="{
-            width: buttonWidth,
-            height: buttonHeight,
-          }"
           :id="button.id"
           :data-type="button.type"
           :data-id="button.id"
@@ -306,7 +312,7 @@
       >
         <p
           :id="paragraph.id"
-          :class="`w-full h-full ${paragraph.css}`"
+          :class="`w-full h-full overflow-hidden leading-none break-words ${paragraph.css}`"
           :data-type="paragraph.type"
           :data-id="paragraph.id"
         >
@@ -337,7 +343,6 @@ import { useSectionStore } from "~/store/myStore";
 import { storeToRefs } from "pinia";
 
 import { useRouter } from "vue-router";
-import draggable from "vuedraggable";
 import VueDraggableResizable from "vue-draggable-resizable";
 import TinyMce from "./TinyMce.vue";
 const store = useSectionStore();
@@ -345,42 +350,95 @@ const isMenuOpen = ref(false);
 const isElementProperty = ref(false);
 const router = useRouter();
 const selectedElement = ref(null);
-
-const updateElement = () => {
-  console.log("updateElement");
-  sectionStore.updateSelectedElement({
-    width: selectedElement.value.width,
-    height: selectedElement.value.height,
-    top: selectedElement.value.top,
-    left: selectedElement.value.left,
-    text: selectedElement.value.text,
-  });
-
-  console.log(
-    "Selected element after update:",
-    sectionStore.selectedElement
-  );
-};
-
-watch(
-  selectedElement,
-  (newVal) => {
-    if (newVal) {
-      sectionStore.updateSelectedElement(newVal);
-    }
-  },
-  { deep: true }
-);
-
-// const selectedElement = ref({
-//   sectionId: null,
-//   type: null,
-//   elementId: null,
-// });
 const showMenuElement = ref(false);
 const selectedSectionId = ref(null);
 
 const sectionStore = useSectionStore();
+
+const dataProperty = ref({
+  type: selectedElement.type,
+  id: selectedElement.id,
+  text: selectedElement.text,
+});
+
+let updateCount = 0;
+
+const updateElementContent = (element) => {
+  if (element) {
+    const { id, type, width, height } = element;
+    const newContent = element.text;
+    const newWidth = element.width;
+    const newHeight = element.height;
+    console.log("new CONTENT: " + newContent);
+    console.log("new ID: " + id);
+    console.log("new WIDTH: " + newWidth);
+    console.log("new HEIGHT: " + newHeight);
+
+    if (
+      newContent !== undefined &&
+      newContent !== null
+    ) {
+      switch (type) {
+        case "button":
+          sectionStore.updateButtonContent(
+            id,
+            newContent
+          );
+          break;
+        case "paragraph":
+          console.log("truyen");
+          sectionStore.updateParagraphContent(
+            id,
+            newContent,
+            newWidth,
+            newHeight
+          );
+          break;
+      }
+    }
+  }
+};
+
+// const updateElementContent = (element) => {
+//   if (element) {
+//     const { id, type, width, height } = element;
+//     const newContent = element.text;
+//     const newId = element.id;
+//     const newWidth = element.width;
+//     const newHeight = element.height;
+//     console.log("ID: " + newContent);
+//     console.log("new content: " + newId);
+//     console.log("new WIDTH: " + newWidth);
+//     console.log("new HEIGHT: " + newHeight);
+
+//     if (
+//       newContent !== undefined &&
+//       newContent !== null
+//     ) {
+//       switch (type) {
+//         case "button":
+//           sectionStore.updateButtonContent(
+//             id,
+//             newContent
+//           );
+//           break;
+//         case "paragraph":
+//           console.log(
+//             `update paragraph content:${updateCount++} ` +
+//               newContent,
+//             newId,
+//             newWidth,
+//             newHeight
+//           );
+//           sectionStore.updateParagraphContent(
+//             id,
+//             newContent
+//           );
+//           break;
+//       }
+//     }
+//   }
+// };
 
 const preview = () => {
   const sectionsData = store.sections;
@@ -401,17 +459,6 @@ const dragging = ref(false);
 const x = ref(0);
 const y = ref(0);
 
-const drag = ref(false);
-
-const selectedElementt = ref({
-  type: "div",
-  id: "example",
-  width: 200,
-  height: 100,
-  text: "Initial text",
-  top: 50,
-  left: 50,
-});
 const onResize = (...$event) => {
   // const { x, y, width, height } = $event;
 
@@ -458,10 +505,6 @@ const onResizeStop = (
       }
     }
     if (elementType === "module") {
-      // console.log(
-      //   "resize template",
-      //   elementType + elementId
-      // );
       const moduleElement = section.modules.find(
         (template) => template.id === elementId
       );
@@ -499,9 +542,6 @@ const onResizeStop = (
 };
 
 const onDrag = (elementType, ...$event) => {
-  // console.log("dang keo:", elementType);
-  // console.log("EVENT X", $event[0]);
-  // console.log("EVENT Y", $event[1]);
   dragging.value = true;
   x.value = $event[0];
   y.value = $event[1];
@@ -514,12 +554,6 @@ const onDragStop = (
   sectionId,
   elementId
 ) => {
-  // console.log("X:", x);
-  // console.log("Y:", y);
-  // console.log("elementTypeeeee:", elementType);
-  // console.log("sectionId:", sectionId);
-  // console.log("elementId:", elementId);
-
   const section = sectionStore.sections.find(
     (section) => section.id === sectionId
   );
@@ -734,25 +768,16 @@ const handleSectionClick = (sectionId, event) => {
   element.style;
 
   console.log(
-    "CLICKED ELEMENT DATA SET: ",
-    clickedElement.dataset.type,
+    "CLICKED ELEMENT DATA TYPE: ",
+    clickedElement.dataset.type
+  );
+
+  console.log(
     " CLICKED ELEMENT ID: ",
     clickedElement.dataset.id
   );
 
   if (clickedElement.dataset.type === "section") {
-    console.log("gan section cha ");
-    sectionStore.selectElement({
-      type: "section",
-      id: sectionId,
-      width: element.clientWidth,
-      height: element.clientHeight,
-      text: "",
-    });
-    console.log(
-      "element cha sau khi gan width height: ",
-      sectionStore.selectedElement
-    );
     const dataProperty = (selectedElement.value =
       {
         type: "section",
@@ -776,9 +801,9 @@ const handleSectionClick = (sectionId, event) => {
     const section = sectionStore.sections.find(
       (s) => s.id === sectionId
     );
-    console.log("section: ", section); // In ra thông tin của section
+    console.log("section: ", section);
     if (section) {
-      console.log("section cha ");
+      console.log("section cha");
       let selected = null;
 
       console.log(
@@ -798,6 +823,14 @@ const handleSectionClick = (sectionId, event) => {
               if (selected) break;
             }
           }
+          console.log(
+            "Width value after update:",
+            selected.width
+          );
+          console.log(
+            "Height value after update:",
+            selected.height
+          );
           break;
         case "paragraph":
           selected = section.paragraphs.find(
@@ -814,7 +847,16 @@ const handleSectionClick = (sectionId, event) => {
             selected = module.buttons.find(
               (b) => b.id === elementId
             );
-            if (selected) break;
+            if (selected) {
+              selected.sectionId = sectionId;
+              selected.moduleId = module.id;
+              console.log(
+                "module ID: ",
+                selected.moduleId,
+                module.id
+              );
+              break;
+            }
           }
           break;
       }
@@ -828,11 +870,12 @@ const handleSectionClick = (sectionId, event) => {
           text: selected.contents || "",
           top: selected.top || "",
           left: selected.left || "",
+          moduleId: selected.moduleId,
         };
-        console.log(
-          "DATA SET :",
-          selectedElement._value
-        );
+        // console.log(
+        //   "DATA SET :",
+        //   selectedElement._value
+        // );
       }
     }
   } else if (
@@ -872,7 +915,7 @@ const createParagraph = () => {
       const paragraphId = maxParagraphId + 1;
       const paragraphData = {
         id: paragraphId,
-        contents: `Add a paragraph text here.${paragraphId}`,
+        // contents: `Add a paragraph text here.${paragraphId}`,
       };
 
       sectionStore.addParagraphToSection(
@@ -933,6 +976,82 @@ const createTemplate = () => {
     }
   }
 };
+
+const removeElement = (sectionId, element) => {
+  const store = useSectionStore();
+  console.log("element chuan bi xoa: ", element);
+  if (element.type === "button") {
+    console.log("xoa element button");
+    store.removeButtonFromSection(
+      sectionId,
+      element.id
+    );
+  } else if (element.type === "paragraph") {
+    console.log(
+      "xoa paragraph",
+      sectionId,
+      element.id
+    );
+    store.removeParagraphFromSection(
+      sectionId,
+      element.id
+    );
+  } else if (element.type === "template") {
+    console.log("xoa section with button");
+    store.removeSectionWithButton(
+      sectionId,
+      element.id
+    );
+  } else if (element.type === "module-button") {
+    console.log(
+      "xoa module-button va cha template cua no"
+    );
+    const section = store.sections.find(
+      (s) => s.id === sectionId
+    );
+    if (section) {
+      const module = section.modules.find((m) =>
+        m.buttons.some((b) => b.id === element.id)
+      );
+      if (module) {
+        store.removeSectionWithButton(
+          sectionId,
+          module.id
+        );
+      }
+    }
+  }
+  console.log(store, "sau khi xoa");
+};
+
+// const removeElement = (sectionId, element) => {
+//   const store = useSectionStore();
+//   console.log("element: ", element);
+//   if (element.type === "button") {
+//     console.log("xoa element button");
+//     store.removeButtonFromSection(
+//       sectionId,
+//       element.id
+//     );
+//   } else if (element.type === "paragraph") {
+//     console.log(
+//       "xoa paragraph",
+//       sectionId,
+//       element.id
+//     );
+//     store.removeParagraphFromSection(
+//       sectionId,
+//       element.id
+//     );
+//   } else if (element.type === "template") {
+//     console.log("xoa section with button");
+//     store.removeSectionWithButton(
+//       sectionId,
+//       element.id
+//     );
+//   }
+//   console.log(store, "sau khi xoa");
+// };
 
 document.addEventListener("click", (event) => {
   const target = event.target;

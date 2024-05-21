@@ -76,7 +76,6 @@ width: ${button.width}px; height: ${button.height}px`"
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { useRoute } from "vue-router";
 import VueDraggableResizable from "vue-draggable-resizable";
 
 // const width = ref(0);
@@ -92,6 +91,11 @@ onMounted(() => {
       JSON.parse(sectionsData);
     dataPreview.value = true;
   }
+  console.log(
+    "DATA TRANFER: ",
+    sectionsData,
+    dataPreview
+  );
 });
 </script>
 
