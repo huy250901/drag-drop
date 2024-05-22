@@ -238,6 +238,8 @@
         </header>
       </vue-draggable-resizable>
       <vue-draggable-resizable
+        :min-width="80"
+        :min-height="30"
         :max-width="300"
         :max-height="300"
         v-for="button in section.buttons"
@@ -283,6 +285,8 @@
         </button>
       </vue-draggable-resizable>
       <vue-draggable-resizable
+        :min-width="140"
+        :min-height="70"
         :max-width="500"
         :max-height="500"
         v-for="moduleBtn in section.modules"
@@ -338,6 +342,8 @@
       </vue-draggable-resizable>
 
       <vue-draggable-resizable
+        :min-width="80"
+        :min-height="20"
         v-for="paragraph in section.paragraphs"
         :max-width="300"
         :max-height="300"
