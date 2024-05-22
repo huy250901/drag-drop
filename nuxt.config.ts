@@ -1,8 +1,8 @@
 export default defineNuxtConfig({
   devtools: { enabled: true },
   css: [
-    "~/assets/css/main.css",
     "~/assets/css/vue-draggable-resizable.css",
+    "~/assets/css/main.css",
   ],
   ssr: false,
   modules: ["@pinia/nuxt"],

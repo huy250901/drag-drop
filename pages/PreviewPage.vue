@@ -23,7 +23,7 @@ width: ${button.width}px; height: ${button.height}px`"
             <component
               :is="button.type"
               :style="`transform: translate(${button.left}px, ${button.top}px)`"
-              :class="`${button.css}`"
+              :class="`bg-emerald-500 ${button.css}`"
             >
               {{ `${button.contents}` }}
             </component>

@@ -80,6 +80,9 @@
             />
             px
           </div>
+          <div>
+            <h1>width</h1>
+          </div>
 
           <div>
             <label>Text: </label>
@@ -124,7 +127,14 @@
             Create Section
           </button>
         </li>
-
+        <!-- <li>
+          <button
+            class="button bg-white p-2 rounded-md w-full"
+            @click="createHeader"
+          >
+            Add Header
+          </button>
+        </li> -->
         <li>
           <button
             class="bg-white p-2 rounded-md w-full"
@@ -181,6 +191,55 @@
       ]"
     >
       <vue-draggable-resizable
+        :axis="'y'"
+        :w="header.width"
+        :h="header.height"
+        v-for="header in section.headers"
+        :key="header.id"
+      >
+        <header
+          :class="`${header.css} h-[${header.height}]`"
+          :style="`width: ${header.width}`"
+        >
+          <div class="flex-1">
+            <ul>
+              <li
+                class="text-white h-full flex items-center"
+              >
+                <h2
+                  class="text-4xl cursor-pointer"
+                >
+                  Logo
+                </h2>
+              </li>
+            </ul>
+          </div>
+          <div class="h-full flex-1">
+            <ul
+              class="flex w-full h-full items-center justify-around"
+            >
+              <li
+                v-for="link in header.links"
+                :key="link.id"
+                class="h-full"
+              >
+                <a
+                  :href="link.href"
+                  :class="[
+                    link.color,
+                    'h-full flex items-center justify-center transition duration-300 hover:text-yellow-300',
+                  ]"
+                >
+                  {{ link.name }}
+                </a>
+              </li>
+            </ul>
+          </div>
+        </header>
+      </vue-draggable-resizable>
+      <vue-draggable-resizable
+        :max-width="300"
+        :max-height="300"
         v-for="button in section.buttons"
         :key="button.id"
         @resizing="onResize"
@@ -224,6 +283,8 @@
         </button>
       </vue-draggable-resizable>
       <vue-draggable-resizable
+        :max-width="500"
+        :max-height="500"
         v-for="moduleBtn in section.modules"
         :key="moduleBtn.id"
         @resizing="onResize"
@@ -278,6 +339,8 @@
 
       <vue-draggable-resizable
         v-for="paragraph in section.paragraphs"
+        :max-width="300"
+        :max-height="300"
         :key="paragraph.id"
         :w="`${paragraph.width}`"
         :h="`${paragraph.height}`"
@@ -380,14 +443,16 @@ const updateElementContent = (element) => {
     ) {
       switch (type) {
         case "button":
-          sectionStore.updateButtonContent(
+          sectionStore.updateButtonProperty(
             id,
-            newContent
+            newContent,
+            newWidth,
+            newHeight
           );
           break;
         case "paragraph":
           console.log("truyen");
-          sectionStore.updateParagraphContent(
+          sectionStore.updateParagraphProperty(
             id,
             newContent,
             newWidth,
@@ -927,6 +992,35 @@ const createParagraph = () => {
   }
 };
 
+const createHeader = () => {
+  if (selectedSectionId.value !== null) {
+    const sectionId = selectedSectionId.value;
+    const section = sectionStore.sections.find(
+      (section) => section.id === sectionId
+    );
+
+    if (section) {
+      let nextHeaderId = 1;
+      if (section.headers.length > 0) {
+        const maxHeaderId = Math.max(
+          ...section.headers.map(
+            (header) => header.id
+          )
+        );
+        nextHeaderId = maxHeaderId + 1;
+      }
+      const headerData = {
+        id: nextHeaderId,
+      };
+
+      sectionStore.addHeader(
+        sectionId,
+        headerData
+      );
+    }
+  }
+};
+
 const createButton = () => {
   if (selectedSectionId.value !== null) {
     const sectionId = selectedSectionId.value;
@@ -945,7 +1039,6 @@ const createButton = () => {
       }
       const buttonData = {
         id: nextButtonId,
-        // contents: `Button ${nextButtonId}`,
       };
       sectionStore.addButtonToSection(
         sectionId,

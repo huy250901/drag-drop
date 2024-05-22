@@ -38,17 +38,66 @@ export const useSectionStore = defineStore({
         buttons: [],
         paragraphs: [],
         modules: [],
+        headers: [],
       };
       this.sections.push(sectionWithDefaults);
     },
+    addHeader(sectionId, dataHeader) {
+      const section =
+        this.findSectionById(sectionId);
+
+      if (section) {
+        const headerId = this.nextId++;
+        const headerWithDefaults = {
+          id: headerId,
+          css: "flex justify-between px-6 items-center",
+          height: "60px",
+          width: "100%",
+          backgroundColor: "bg-gray-700",
+          links: [
+            {
+              id: 1,
+              name: "Home",
+              href: "#",
+              color: "text-gray-100",
+            },
+            {
+              id: 2,
+              name: "About us",
+              href: "#",
+              color: "text-white",
+            },
+            {
+              id: 3,
+              name: "Blog",
+              href: "#",
+              color: "text-white",
+            },
+            {
+              id: 4,
+              name: "Contact",
+              href: "#",
+              color: "text-white",
+            },
+          ],
+          ...dataHeader,
+        };
+
+        section.headers.push(headerWithDefaults);
+        console.log(
+          "section.headers after adding:",
+          section.headers
+        );
+      }
+    },
+
     addSectionWithButton(sectionId, data) {
-      const section = this.sections.find(
-        (s) => s.id === sectionId
-      );
+      const section =
+        this.findSectionById(sectionId);
 
       if (section) {
         this.initializeNextId(section, "module");
-        const newSection = {
+        const newModule = {
           type: "template",
           id: section.nextIds.module++,
           css: "bg-red-500 flex justify-center rounded-md items-center",
@@ -64,11 +113,11 @@ export const useSectionStore = defineStore({
         };
 
         this.initializeModuleNextId(
-          newSection,
+          newModule,
           "button"
         );
-        newSection.buttons.push({
-          id: newSection.nextIds.button++,
+        newModule.buttons.push({
+          id: newModule.nextIds.button++,
           type: "module-button",
           width: "100",
           height: "50",
@@ -76,13 +125,12 @@ export const useSectionStore = defineStore({
           css: "bg-blue-500 items-center flex text-white rounded px-4 py-2",
         });
 
-        section.modules.push(newSection);
+        section.modules.push(newModule);
       }
     },
     addButtonToSection(sectionId, buttonData) {
-      const section = this.sections.find(
-        (section) => section.id === sectionId
-      );
+      const section =
+        this.findSectionById(sectionId);
       if (section) {
         this.initializeNextId(section, "button");
         const buttonId = section.nextIds.button++;
@@ -108,9 +156,8 @@ export const useSectionStore = defineStore({
       sectionId,
       paragraphData
     ) {
-      const section = this.sections.find(
-        (section) => section.id === sectionId
-      );
+      const section =
+        this.findSectionById(sectionId);
       if (section) {
         this.initializeNextId(
           section,
@@ -133,9 +180,8 @@ export const useSectionStore = defineStore({
       }
     },
     removeButtonFromSection(sectionId, buttonId) {
-      const section = this.sections.find(
-        (s) => s.id === sectionId
-      );
+      const section =
+        this.findSectionById(sectionId);
       if (section) {
         section.buttons = section.buttons.filter(
           (button) => button.id !== buttonId
@@ -146,9 +192,8 @@ export const useSectionStore = defineStore({
       sectionId,
       paragraphId
     ) {
-      const section = this.sections.find(
-        (s) => s.id === sectionId
-      );
+      const section =
+        this.findSectionById(sectionId);
       if (section) {
         section.paragraphs =
           section.paragraphs.filter(
@@ -158,27 +203,47 @@ export const useSectionStore = defineStore({
       }
     },
     removeSectionWithButton(sectionId, moduleId) {
-      const section = this.sections.find(
-        (s) => s.id === sectionId
-      );
+      const section =
+        this.findSectionById(sectionId);
+      if (section) {
+        section.modules = section.modules.filter(
+          (module) => module.id !== moduleId
+        );
+      }
+    },
+    updateButtonProperty(
+      id,
+      newContent,
+      newWidth,
+      newHeight
+    ) {
+      console.log("STORE BUTTON ID:", id);
+      console.log("STORE CONTENT:", newContent);
+      console.log("STORE WIDTH:", newWidth);
+      console.log("STORE HEIGHT:", newHeight);
 
-      if (section) {
-        section.modules = section.modules.filter(
-          (module) => module.id !== moduleId
+      for (const section of this.sections) {
+        const button = section.buttons.find(
+          (b) => b.id === id
         );
+        if (button) {
+          button.contents = newContent;
+          button.width = newWidth;
+          button.height = newHeight;
+
+          console.log(
+            "width current:",
+            button.width
+          );
+          console.log(
+            "height current:",
+            button.height
+          );
+          break;
+        }
       }
     },
-    removeSectionWithButton(sectionId, moduleId) {
-      const section = this.sections.find(
-        (s) => s.id === sectionId
-      );
-      if (section) {
-        section.modules = section.modules.filter(
-          (module) => module.id !== moduleId
-        );
-      }
-    },
-    updateParagraphContent(
+    updateParagraphProperty(
       id,
       newContent,
       newWidth,
@@ -188,24 +253,32 @@ export const useSectionStore = defineStore({
       console.log("STORE CONTENT:", newContent);
       console.log("STORE WIDTH:", newWidth);
       console.log("STORE HEIGHT:", newHeight);
-      const paragraph = this.sections
-        .flatMap((section) => section.paragraphs)
-        .find((p) => p.id === id);
 
-      if (paragraph) {
-        paragraph.contents = newContent;
-        paragraph.width = newWidth;
-        paragraph.height = newHeight;
-        console.log(
-          "width current",
-          paragraph.width
+      for (const section of this.sections) {
+        const paragraph = section.paragraphs.find(
+          (p) => p.id === id
         );
-        console.log(
-          "height current",
-          paragraph.height
-        );
-        // paragraph.height = newHeight;
+        if (paragraph) {
+          paragraph.contents = newContent;
+          paragraph.width = newWidth;
+          paragraph.height = newHeight;
+
+          console.log(
+            "width current:",
+            paragraph.width
+          );
+          console.log(
+            "height current:",
+            paragraph.height
+          );
+          break; // Dừng vòng lặp sau khi cập nhật xong
+        }
       }
+    },
+    findSectionById(sectionId) {
+      return this.sections.find(
+        (section) => section.id === sectionId
+      );
     },
   },
 });
