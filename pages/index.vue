@@ -178,7 +178,7 @@
             class="bg-white p-2 rounded-md w-full"
             @click="createTemplate"
           >
-            Add template
+            Add section button
           </button>
         </li>
         <li>
@@ -221,7 +221,7 @@
       ]"
     >
       <vue-draggable-resizable
-      v-for="image in section.images"
+        v-for="image in section.images"
         :parent="true"
         :min-width="80"
         :min-height="30"
@@ -348,8 +348,8 @@
         </header>
       </vue-draggable-resizable>
       <vue-draggable-resizable
-      v-for="button in section.buttons"
-      :parent="true"
+        v-for="button in section.buttons"
+        :parent="true"
         :min-width="80"
         :min-height="30"
         :max-width="300"
@@ -623,7 +623,7 @@ const y = ref(0);
 
 const onResize = (...$event) => {
   const { x, y, width, height } = $event;
-  console.log("resize element");
+  // console.log("resize element");
 
   // console.log(
   //   "EVENT X: ",
@@ -646,9 +646,9 @@ const onResizeStop = (
   sectionId,
   elementId
 ) => {
-  console.log(
-    `resize stop: X: ${x}, Y: ${y}, W: ${w}, H: ${h}, elementType: ${elementType}, sectionId: ${sectionId}, elementId: ${elementId}`
-  );
+  // console.log(
+  //   `resize stop: X: ${x}, Y: ${y}, W: ${w}, H: ${h}, elementType: ${elementType}, sectionId: ${sectionId}, elementId: ${elementId}`
+  // );
   const section = sectionStore.sections.find(
     (section) => section.id === sectionId
   );
@@ -707,8 +707,8 @@ const onResizeStop = (
       }
     }
     if (elementType === "img") {
-      console.log("image resize check");
-      console.log("elementId Image :", elementId);
+      // console.log("image resize check");
+      // console.log("elementId Image :", elementId);
       const img = section.images.find(
         (image) => image.id === elementId
       );
@@ -735,13 +735,13 @@ const onDragStop = (
   sectionId,
   elementId
 ) => {
-  console.log(
-    `dang keo ${elementType}`,
-    "X:",
-    x,
-    "Y:",
-    y
-  );
+  // console.log(
+  //   `dang keo ${elementType}`,
+  //   "X:",
+  //   x,
+  //   "Y:",
+  //   y
+  // );
   const section = sectionStore.sections.find(
     (section) => section.id === sectionId
   );
@@ -935,13 +935,12 @@ const handleSectionClick = (sectionId, event) => {
     // console.log("lay property header:", idHeader);
     const idHeaderNumber = Number(idHeader); // Chuyển đổi idHeader thành kiểu số
 
-    console.log("section:", section.headers);
+    // console.log("section:", section.headers);
     selected = section.headers.find((h) => {
       return h.id === idHeaderNumber; // Cần trả về kết quả của hàm find
     });
 
     if (selected) {
-      console.log("gan du lieu header");
       selectedElement.value = {
         type: selected.type,
         id: selected.id,
@@ -952,10 +951,6 @@ const handleSectionClick = (sectionId, event) => {
         left: selected.left || "",
         moduleId: selected.moduleId,
       };
-      console.log(
-        "Selected header element:",
-        selectedElement.value
-      );
       return;
     } else {
       console.log("Header không tìm thấy.");
@@ -998,21 +993,17 @@ const handleSectionClick = (sectionId, event) => {
             if (selected) {
               selected.sectionId = sectionId;
               selected.moduleId = module.id;
-              console.log(
-                "module ID: ",
-                selected.moduleId,
-                module.id
-              );
+
               break;
             }
           }
           break;
         case "header":
-          console.log("day la header");
+          // console.log("xoa header");
           break;
         default:
           console.log(
-            "Unknown element type:",
+            "element type:",
             elementType
           );
       }
@@ -1028,10 +1019,6 @@ const handleSectionClick = (sectionId, event) => {
           left: selected.left || "",
           moduleId: selected.moduleId,
         };
-        console.log(
-          "SELEECT ELEMENT DATA SET:",
-          selectedElement.value
-        );
       }
     }
   }
@@ -1077,7 +1064,7 @@ const createParagraph = () => {
         sectionId,
         paragraphData
       );
-      console.log("paragraph:", section);
+      // console.log("paragraph:", section);
     }
   }
 };
@@ -1155,7 +1142,7 @@ const createTemplate = () => {
         sectionId,
         sectionData
       );
-      console.log("MODULE", section);
+      // console.log("MODULE", section);
     }
   }
 };
@@ -1203,33 +1190,23 @@ const addImage = () => {
 
 const removeElement = (sectionId, element) => {
   // const store = useSectionStore();
-  console.log("element chuan bi xoa: ", element);
+  // console.log("element chuan bi xoa: ", element);
   if (element.type === "button") {
-    console.log("xoa element button");
     store.removeButtonFromSection(
       sectionId,
       element.id
     );
   } else if (element.type === "paragraph") {
-    console.log(
-      "xoa paragraph",
-      sectionId,
-      element.id
-    );
     store.removeParagraphFromSection(
       sectionId,
       element.id
     );
   } else if (element.type === "template") {
-    console.log("xoa section with button");
     store.removeSectionWithButton(
       sectionId,
       element.id
     );
   } else if (element.type === "module-button") {
-    console.log(
-      "xoa module-button va cha template cua no"
-    );
     const section = store.sections.find(
       (s) => s.id === sectionId
     );
@@ -1245,18 +1222,12 @@ const removeElement = (sectionId, element) => {
       }
     }
   } else if (element.type === "header") {
-    console.log(
-      "xoa header",
-      sectionId,
-      element.id
-    );
-
     store.removeHeaderFromSection(
       sectionId,
       element.id
     );
   }
-  console.log(store, "sau khi xoa");
+  // console.log(store, "sau khi xoa");
 };
 document.addEventListener("click", (event) => {
   const target = event.target;
