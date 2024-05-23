@@ -15,6 +15,20 @@
           :class="section.css"
         >
           <div
+            v-for="image in section.images"
+            class="absolute"
+            :key="image.id"
+            :style="`transform: translate(${image.left}px, ${image.top}px); width: ${image.width}px; height: ${image.height}px`"
+          >
+            <component
+              :is="image.type"
+              :src="image.src"
+              :class="image.css"
+            >
+            </component>
+          </div>
+
+          <div
             class="absolute w-full"
             v-for="header in section.headers"
             :key="header.id"
@@ -83,23 +97,17 @@ width: ${button.width}px; height: ${button.height}px`"
             v-for="moduleBtn in section.modules"
             :key="moduleBtn.id"
             :class="moduleBtn.css"
-            :style="`transform: translate(${moduleBtn.left}px, ${moduleBtn.top}px);position: absolute;width: ${moduleBtn.width}px;height: ${moduleBtn.height}px`"
+            :style="`width: ${moduleBtn.width}px;height: ${moduleBtn.height}px;transform: translate(${moduleBtn.left}px, ${moduleBtn.top}px)`"
           >
-            <!-- <div
-              v-for="btn in moduleBtn.buttons"
-              :key="btn.id"
-              :style="`position: absolute;`"
-            > -->
-            <button
-              v-for="btn in moduleBtn.buttons"
-              :key="btn.id"
-              :style="`position: relative;`"
-              :class="`${btn.css}`"
+            <component
+              :is="`button`"
+              v-for="button in moduleBtn.buttons"
+              :key="button.id"
+              :class="button.css"
+              :style="`position: absolute; width: ${button.width}px;height: ${button.height}px`"
             >
-              {{ btn.contents }}
-              <!-- {{ moduleBtn.left }} -->
-            </button>
-            <!-- </div> -->
+              {{ button.contents }}
+            </component>
           </div>
           <div
             v-for="paragraph in section.paragraphs"

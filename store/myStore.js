@@ -12,6 +12,7 @@ export const useSectionStore = defineStore({
           button: 1,
           paragraph: 1,
           module: 1,
+          image: 1,
         };
       }
       if (isNaN(section.nextIds[type])) {
@@ -39,8 +40,28 @@ export const useSectionStore = defineStore({
         paragraphs: [],
         modules: [],
         headers: [],
+        images: [],
       };
       this.sections.push(sectionWithDefaults);
+    },
+    addImageToSection(sectionId, image) {
+      const section =
+        this.findSectionById(sectionId);
+      if (section) {
+        this.initializeNextId(section, "image");
+        const imageId = section.nextIds.image++;
+        const imageWithDefaults = {
+          ...image,
+          id: imageId,
+          css: "h-full w-full",
+          type: "img",
+          width: "100",
+          height: "100",
+          top: "0",
+          left: "0",
+        };
+        section.images.push(imageWithDefaults);
+      }
     },
     addHeader(sectionId, dataHeader) {
       const section =
@@ -193,8 +214,9 @@ export const useSectionStore = defineStore({
         const paragraphWithDefaults = {
           ...paragraphData,
           id: section.nextIds.paragraph++,
+          type: "p",
           contents: "paragraph",
-          css: "text-black bg-white",
+          css: "w-full h-full text-black bg-white",
           type: "paragraph",
           width: "200",
           height: "24",

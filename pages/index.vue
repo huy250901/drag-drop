@@ -181,6 +181,14 @@
             Add template
           </button>
         </li>
+        <li>
+          <button
+            class="bg-white p-2 rounded-md w-full"
+            @click="addImage"
+          >
+            Add image
+          </button>
+        </li>
       </ul>
       <ul v-else class="flex flex-col gap-4 pt-4">
         <li>
@@ -212,6 +220,49 @@
         },
       ]"
     >
+      <vue-draggable-resizable
+      v-for="image in section.images"
+        :parent="true"
+        :min-width="80"
+        :min-height="30"
+        :max-width="300"
+        :max-height="300"
+        :key="image.id"
+        class="absolute"
+        :w="image.width"
+        :h="image.height"
+        :x="image.left"
+        :y="image.top"
+        @resizing="onResize"
+        @resize-stop="
+          (x, y, w, h) =>
+            onResizeStop(
+              x,
+              y,
+              w,
+              h,
+              'img',
+              section.id,
+              image.id
+            )
+        "
+        @dragging="onDrag('img', $event)"
+        @drag-stop="
+          (x, y) =>
+            onDragStop(
+              x,
+              y,
+              'img',
+              section.id,
+              image.id
+            )
+        "
+      >
+        <img
+          :class="image.css"
+          :src="image.src"
+        />
+      </vue-draggable-resizable>
       <vue-draggable-resizable
         v-for="header in section.headers"
         :min-height="40"
@@ -297,11 +348,12 @@
         </header>
       </vue-draggable-resizable>
       <vue-draggable-resizable
+      v-for="button in section.buttons"
+      :parent="true"
         :min-width="80"
         :min-height="30"
         :max-width="300"
         :max-height="300"
-        v-for="button in section.buttons"
         :key="button.id"
         @resizing="onResize"
         @resize-stop="
@@ -332,7 +384,6 @@
         :h="`${button.height}`"
         :x="`${button.left}`"
         :y="`${button.top}`"
-        :parent="true"
       >
         <button
           :id="button.id"
@@ -360,7 +411,7 @@
               h,
               'module',
               section.id,
-              moduleBtn.icssd
+              moduleBtn.id
             )
         "
         :w="`${moduleBtn.width}`"
@@ -385,6 +436,10 @@
           :data-type="moduleBtn.type"
           :data-id="moduleBtn.id"
           :class="`w-full h-full ${moduleBtn.css}`"
+          :w="moduleBtn.width"
+          :h="moduleBtn.height"
+          :x="moduleBtn.top"
+          :y="moduleBtn.left"
         >
           <button
             v-for="btn in moduleBtn.buttons"
@@ -568,6 +623,7 @@ const y = ref(0);
 
 const onResize = (...$event) => {
   const { x, y, width, height } = $event;
+  console.log("resize element");
 
   // console.log(
   //   "EVENT X: ",
@@ -590,9 +646,9 @@ const onResizeStop = (
   sectionId,
   elementId
 ) => {
-  // console.log(
-  //   `resize stop: X: ${x}, Y: ${y}, W: ${w}, H: ${h}, elementType: ${elementType}, sectionId: ${sectionId}, elementId: ${elementId}`
-  // );
+  console.log(
+    `resize stop: X: ${x}, Y: ${y}, W: ${w}, H: ${h}, elementType: ${elementType}, sectionId: ${sectionId}, elementId: ${elementId}`
+  );
   const section = sectionStore.sections.find(
     (section) => section.id === sectionId
   );
@@ -604,6 +660,8 @@ const onResizeStop = (
       if (button) {
         button.width = w;
         button.height = h;
+        button.top = y;
+        button.left = x;
         // console.log(
         //   "gan thanh cong width height resize ",
         //   button.width,
@@ -618,6 +676,8 @@ const onResizeStop = (
       if (moduleElement) {
         moduleElement.width = w;
         moduleElement.height = h;
+        moduleElement.top = y;
+        moduleElement.left = x;
       } else {
         console.log(
           "Không tìm thấy module với ID:",
@@ -632,6 +692,8 @@ const onResizeStop = (
       if (paragraph) {
         paragraph.width = w;
         paragraph.height = h;
+        paragraph.top = y;
+        paragraph.left = x;
       }
     }
 
@@ -642,6 +704,19 @@ const onResizeStop = (
       );
       if (header) {
         header.height = h;
+      }
+    }
+    if (elementType === "img") {
+      console.log("image resize check");
+      console.log("elementId Image :", elementId);
+      const img = section.images.find(
+        (image) => image.id === elementId
+      );
+      if (img) {
+        img.width = w;
+        img.height = h;
+        img.top = y;
+        img.left = x;
       }
     }
   }
@@ -660,7 +735,13 @@ const onDragStop = (
   sectionId,
   elementId
 ) => {
-  // console.log("dang keo ", "X:", x, "Y:", y);
+  console.log(
+    `dang keo ${elementType}`,
+    "X:",
+    x,
+    "Y:",
+    y
+  );
   const section = sectionStore.sections.find(
     (section) => section.id === sectionId
   );
@@ -699,6 +780,16 @@ const onDragStop = (
           "Không tìm thấy module với ID:",
           elementId
         );
+      }
+    }
+    if (elementType === "img") {
+      const imgElement = section.images.find(
+        (image) => image.id === elementId
+      );
+
+      if (imgElement) {
+        imgElement.top = y;
+        imgElement.left = x;
       }
     }
   } else {
@@ -961,208 +1052,6 @@ const handleSectionClick = (sectionId, event) => {
   // }
 };
 
-// const handleSectionClick = (sectionId, event) => {
-//   const clickedElement = event.target;
-//   const element = event.currentTarget;
-
-//   openElementProperty();
-//   showMenuElement.value = true;
-//   selectedSectionId.value = sectionId;
-
-//   console.log("EVENT:", event.target);
-
-//   const targetElementClick =
-//     clickedElement.dataset.type;
-//   // console.log(
-//   //   "CLICKED ELEMENT DATA TYPE: ",
-//   //   targetElementClick
-//   // );
-//   // console.log(
-//   //   "CLICKED ELEMENT ID: ",
-//   //   clickedElement.dataset.id
-//   // );
-
-//   if (targetElementClick === "section") {
-//     selectedElement.value = {
-//       type: "section",
-//       id: sectionId,
-//       width: element.clientWidth,
-//       height: element.clientHeight,
-//       text: "",
-//     };
-//     console.log(
-//       "data Property:",
-//       selectedElement.value
-//     );
-//   }
-
-//   let idHeader = null;
-//   let parentElement = null;
-//   if (
-//     [
-//       "img-header",
-//       "li-header",
-//       "div-header",
-//       "a-header",
-//       "header",
-//     ].includes(targetElementClick)
-//   ) {
-//     // Kiểm tra nếu clickedElement là header trước
-//     if (targetElementClick === "header") {
-//       console.log("click vao header k while");
-//       idHeader = clickedElement.dataset.id;
-//       console.log(
-//         "clickedElement.dataset.type",
-//         clickedElement.dataset.type
-//       );
-//       parentElement = clickedElement.dataset.type;
-//     } else {
-//       parentElement =
-//         clickedElement.parentElement;
-//       while (parentElement) {
-//         console.log("vong lap while");
-//         const parentElementType =
-//           parentElement?.dataset.type;
-//         if (parentElementType === "header") {
-//           idHeader = parentElement?.dataset.id;
-//           console.log(
-//             "Element cha có data-type là header:",
-//             parentElement
-//           );
-//           break;
-//         }
-//         parentElement =
-//           parentElement?.parentElement;
-//       }
-//     }
-//   }
-
-//   const section = sectionStore.sections.find(
-//     (s) => s.id === sectionId
-//   );
-//   const headerElement = idHeader
-//     ? parentElement?.dataset.type
-//     : null;
-//   console.log("headerElement: ", headerElement);
-//   console.log("idHeaderElement: ", idHeader);
-
-//   let selected = null;
-//   if (headerElement === "header" && idHeader) {
-//     console.log("lay property header:", idHeader);
-//     selected = section.headers.find(
-//       (h) => h.id === idHeader
-//     );
-//     console.log("selected:", selected);
-//     if (selected) {
-//       console.log("gan du lieu header");
-//       selectedElement.value = {
-//         type: selected.type,
-//         id: selected.id,
-//         width: selected.width,
-//         height: selected.height,
-//         text: selected.contents || "",
-//         top: selected.top || "",
-//         left: selected.left || "",
-//         moduleId: selected.moduleId,
-//       };
-//       console.log(
-//         "Selected header element:",
-//         selectedElement.value
-//       );
-//       return;
-//     }
-//   }
-
-//   if (targetElementClick) {
-//     const elementType = targetElementClick;
-//     const elementId = parseInt(
-//       clickedElement.dataset.id,
-//       10
-//     );
-
-//     if (section) {
-//       switch (elementType) {
-//         case "button":
-//           selected =
-//             section.buttons.find(
-//               (b) => b.id === elementId
-//             ) ||
-//             section.modules
-//               .flatMap((module) => module.buttons)
-//               .find((b) => b.id === elementId);
-//           console.log("selected:", selected);
-//           break;
-//         case "paragraph":
-//           selected = section.paragraphs.find(
-//             (p) => p.id === elementId
-//           );
-//           break;
-//         case "template":
-//           selected = section.modules.find(
-//             (m) => m.id === elementId
-//           );
-//           break;
-//         case "module-button":
-//           for (const module of section.modules) {
-//             selected = module.buttons.find(
-//               (b) => b.id === elementId
-//             );
-//             if (selected) {
-//               selected.sectionId = sectionId;
-//               selected.moduleId = module.id;
-//               console.log(
-//                 "module ID: ",
-//                 selected.moduleId,
-//                 module.id
-//               );
-//               break;
-//             }
-//           }
-//           break;
-//         case "header":
-//           console.log("day la header");
-//           break;
-//         default:
-//           console.log(
-//             "Unknown element type:",
-//             elementType
-//           );
-//       }
-
-//       if (selected) {
-//         selectedElement.value = {
-//           type: selected.type,
-//           id: selected.id,
-//           width: selected.width,
-//           height: selected.height,
-//           text: selected.contents || "",
-//           top: selected.top || "",
-//           left: selected.left || "",
-//           moduleId: selected.moduleId,
-//         };
-//         console.log(
-//           "DATA SET:",
-//           selectedElement.value
-//         );
-//       }
-//     }
-//   } else if (
-//     clickedElement.classList.contains("section")
-//   ) {
-//     selectedElement.value = {
-//       type: "section",
-//       id: sectionId,
-//       width: element.clientWidth,
-//       height: element.clientHeight,
-//       text: "",
-//     };
-//     console.log(
-//       "SELECT ELEMENT VALUE:",
-//       selectedElement.value
-//     );
-//   }
-// };
-
 const createParagraph = () => {
   if (selectedSectionId.value !== null) {
     const sectionId = selectedSectionId.value;
@@ -1271,6 +1160,47 @@ const createTemplate = () => {
   }
 };
 
+const addImage = () => {
+  if (!selectedSectionId.value) {
+    alert("Please select a section first!");
+    return;
+  }
+
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "image/jpeg, image/png";
+  input.onchange = (e) => {
+    const file = e.target.files[0];
+    const fileExtension = file.name
+      .split(".")
+      .pop()
+      .toLowerCase();
+    if (
+      file &&
+      (fileExtension === "jpg" ||
+        fileExtension === "jpeg" ||
+        fileExtension === "png")
+    ) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const image = {
+          src: event.target.result,
+        };
+        sectionStore.addImageToSection(
+          selectedSectionId.value,
+          image
+        );
+      };
+      reader.readAsDataURL(file);
+    } else {
+      alert(
+        "Please select a valid JPEG or PNG image."
+      );
+    }
+  };
+  input.click();
+};
+
 const removeElement = (sectionId, element) => {
   // const store = useSectionStore();
   console.log("element chuan bi xoa: ", element);
@@ -1328,36 +1258,6 @@ const removeElement = (sectionId, element) => {
   }
   console.log(store, "sau khi xoa");
 };
-
-// const removeElement = (sectionId, element) => {
-//   const store = useSectionStore();
-//   console.log("element: ", element);
-//   if (element.type === "button") {
-//     console.log("xoa element button");
-//     store.removeButtonFromSection(
-//       sectionId,
-//       element.id
-//     );
-//   } else if (element.type === "paragraph") {
-//     console.log(
-//       "xoa paragraph",
-//       sectionId,
-//       element.id
-//     );
-//     store.removeParagraphFromSection(
-//       sectionId,
-//       element.id
-//     );
-//   } else if (element.type === "template") {
-//     console.log("xoa section with button");
-//     store.removeSectionWithButton(
-//       sectionId,
-//       element.id
-//     );
-//   }
-//   console.log(store, "sau khi xoa");
-// };
-
 document.addEventListener("click", (event) => {
   const target = event.target;
 

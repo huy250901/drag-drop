@@ -53,11 +53,42 @@
         </ul>
       </div>
     </header>
+    <button
+      class="bg-white p-2 rounded-md w-full"
+      @click="addImage"
+    >
+      Add image
+    </button>
+
+    <div id="image-container"></div>
   </div>
 </template>
 
 <script setup>
 import ChevDown from "../assets/icons/ic_chevdown.vue";
+const addImage = () => {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "image/*"; // Chỉ chấp nhận các tệp hình ảnh
+  input.onchange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = document.createElement("img");
+        img.src = event.target.result;
+        img.classList.add("added-image"); // Thêm một lớp CSS cho hình ảnh
+        // Chèn hình ảnh vào DOM
+        document
+          .getElementById("image-container")
+          .appendChild(img);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+  // Kích hoạt sự kiện click trên input để mở hộp thoại chọn tệp
+  input.click();
+};
 </script>
 
 <style scoped></style>
