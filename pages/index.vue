@@ -500,14 +500,6 @@ const updateElementContent = (element) => {
     const newHeight = element.height;
     const newTop = element.top;
     const newLeft = element.left;
-    console.log("new ID: " + id);
-    console.log("TYPE ELEMENT: " + type);
-    console.log("new CONTENT: " + newContent);
-    console.log("new WIDTH: " + newWidth);
-    console.log("new HEIGHT: " + newHeight);
-    console.log("new TOP: " + top);
-    console.log("new LEFT: " + left);
-
     if (
       newContent !== undefined &&
       newContent !== null
@@ -524,7 +516,6 @@ const updateElementContent = (element) => {
           );
           break;
         case "paragraph":
-          console.log("truyen");
           sectionStore.updateParagraphProperty(
             id,
             newContent,
@@ -535,7 +526,6 @@ const updateElementContent = (element) => {
           );
           break;
         case "template":
-          console.log("truyen");
           sectionStore.updateTemplateProperty(
             id,
             newContent,
@@ -546,59 +536,16 @@ const updateElementContent = (element) => {
           );
           break;
         case "header":
-          console.log("truyen");
           sectionStore.updateHeaderProperty(
             id,
-            newContent,
-            newWidth,
-            newHeight
+            newHeight,
+            newTop
           );
           break;
       }
     }
   }
 };
-
-// const updateElementContent = (element) => {
-//   if (element) {
-//     const { id, type, width, height } = element;
-//     const newContent = element.text;
-//     const newId = element.id;
-//     const newWidth = element.width;
-//     const newHeight = element.height;
-//     console.log("ID: " + newContent);
-//     console.log("new content: " + newId);
-//     console.log("new WIDTH: " + newWidth);
-//     console.log("new HEIGHT: " + newHeight);
-
-//     if (
-//       newContent !== undefined &&
-//       newContent !== null
-//     ) {
-//       switch (type) {
-//         case "button":
-//           sectionStore.updateButtonContent(
-//             id,
-//             newContent
-//           );
-//           break;
-//         case "paragraph":
-//           console.log(
-//             `update paragraph content:${updateCount++} ` +
-//               newContent,
-//             newId,
-//             newWidth,
-//             newHeight
-//           );
-//           sectionStore.updateParagraphContent(
-//             id,
-//             newContent
-//           );
-//           break;
-//       }
-//     }
-//   }
-// };
 
 const preview = () => {
   const sectionsData = store.sections;
@@ -621,8 +568,6 @@ const y = ref(0);
 
 const onResize = (...$event) => {
   const { x, y, width, height } = $event;
-  console.log("X: " + x);
-  console.log("EVENT: " + $event);
 
   // console.log(
   //   "EVENT X: ",
@@ -645,9 +590,9 @@ const onResizeStop = (
   sectionId,
   elementId
 ) => {
-  console.log(
-    `resize stop: X: ${x}, Y: ${y}, W: ${w}, H: ${h}, elementType: ${elementType}, sectionId: ${sectionId}, elementId: ${elementId}`
-  );
+  // console.log(
+  //   `resize stop: X: ${x}, Y: ${y}, W: ${w}, H: ${h}, elementType: ${elementType}, sectionId: ${sectionId}, elementId: ${elementId}`
+  // );
   const section = sectionStore.sections.find(
     (section) => section.id === sectionId
   );
@@ -659,26 +604,20 @@ const onResizeStop = (
       if (button) {
         button.width = w;
         button.height = h;
-        console.log(
-          "gan thanh cong width height resize ",
-          button.width,
-          button.height
-        );
+        // console.log(
+        //   "gan thanh cong width height resize ",
+        //   button.width,
+        //   button.height
+        // );
       }
     }
     if (elementType === "module") {
       const moduleElement = section.modules.find(
         (template) => template.id === elementId
       );
-      console.log("MODULE:", moduleElement);
       if (moduleElement) {
-        console.log(
-          "resize MODULE TRONG ID :",
-          elementId
-        );
         moduleElement.width = w;
         moduleElement.height = h;
-        console.log("set rezise successfully");
       } else {
         console.log(
           "Không tìm thấy module với ID:",
@@ -693,25 +632,16 @@ const onResizeStop = (
       if (paragraph) {
         paragraph.width = w;
         paragraph.height = h;
-        console.log(
-          "gan thanh cong width height resize ",
-          paragraph.width,
-          paragraph.height
-        );
       }
     }
 
     if (elementType === "header") {
-      console.log("day la header resize");
+      // console.log("day la header resize");
       const header = section.headers.find(
         (header) => header.id === elementId
       );
       if (header) {
         header.height = h;
-        console.log(
-          "gan thanh cong width height resize ",
-          header.width
-        );
       }
     }
   }
@@ -730,7 +660,7 @@ const onDragStop = (
   sectionId,
   elementId
 ) => {
-  console.log("dang keo ", "X:", x, "Y:", y);
+  // console.log("dang keo ", "X:", x, "Y:", y);
   const section = sectionStore.sections.find(
     (section) => section.id === sectionId
   );
@@ -743,7 +673,6 @@ const onDragStop = (
         // console.log("Gán thành công nút", x, y);
         button.left = x;
         button.top = y;
-        console.log("set successfully");
       } else {
         // console.log("Không tìm thấy nút");
       }
@@ -753,31 +682,18 @@ const onDragStop = (
         (paragraph) => paragraph.id === elementId
       );
       if (paragraph) {
-        // console.log(
-        //   "Gán thành công đoạn văn",
-        //   x,
-        //   y
-        // );
         paragraph.left = x;
         paragraph.top = y;
-        console.log("set successfully");
       } else {
       }
     }
     if (elementType === "template") {
-      console.log("DANG KEO SECTION MODULE");
       const moduleElement = section.modules.find(
         (template) => template.id === elementId
       );
-      console.log("MODULE:", moduleElement);
       if (moduleElement) {
-        console.log(
-          "keo MODULE TRONG ID :",
-          elementId
-        );
         moduleElement.left = x;
         moduleElement.top = y;
-        console.log("set successfully");
       } else {
         console.log(
           "Không tìm thấy module với ID:",
@@ -789,14 +705,12 @@ const onDragStop = (
     console.log("Không tìm thấy phần");
   }
   if (elementType === "header") {
-    console.log("DANG KEO HEADER");
     const headerElement = section.headers.find(
       (header) => header.id === elementId
     );
 
     if (headerElement) {
       headerElement.top = y;
-      console.log("set successfully");
     }
   }
 
@@ -856,8 +770,6 @@ const handleSectionClick = (sectionId, event) => {
   showMenuElement.value = true;
   selectedSectionId.value = sectionId;
 
-  console.log("EVENT:", event.target);
-
   const targetElementClick =
     clickedElement.dataset.type;
   // console.log(
@@ -877,10 +789,10 @@ const handleSectionClick = (sectionId, event) => {
       height: element.clientHeight,
       text: "",
     };
-    console.log(
-      "data set Property Section:",
-      selectedElement.value
-    );
+    // console.log(
+    //   "data set Property Section:",
+    //   selectedElement.value
+    // );
   }
 
   let idHeader = null;
@@ -898,28 +810,18 @@ const handleSectionClick = (sectionId, event) => {
   ) {
     // Kiểm tra nếu clickedElement là header trước
     if (targetElementClick === "header") {
-      console.log("click vao header k while");
       idHeader = clickedElement.dataset.id;
-      console.log(
-        "clickedElement.dataset.type",
-        clickedElement.dataset.type
-      );
       headerElementType =
         clickedElement.dataset.type;
     } else {
       parentElement =
         clickedElement.parentElement;
       while (parentElement) {
-        console.log("vong lap while");
         const parentElementType =
           parentElement?.dataset.type;
         if (parentElementType === "header") {
           idHeader = parentElement?.dataset.id;
           headerElementType = parentElementType;
-          console.log(
-            "Element cha có data-type là header:",
-            parentElement
-          );
           break;
         }
         parentElement =
@@ -934,24 +836,18 @@ const handleSectionClick = (sectionId, event) => {
   const headerElement = idHeader
     ? headerElementType
     : null;
-  console.log("headerElement: ", headerElement);
-  console.log("idHeaderElement: ", idHeader);
+  // console.log("headerElement: ", headerElement);
+  // console.log("idHeaderElement: ", idHeader);
 
   let selected = null;
   if (headerElement === "header" && idHeader) {
-    console.log("lay property header:", idHeader);
+    // console.log("lay property header:", idHeader);
     const idHeaderNumber = Number(idHeader); // Chuyển đổi idHeader thành kiểu số
 
     console.log("section:", section.headers);
     selected = section.headers.find((h) => {
-      console.log(
-        "h",
-        typeof h.id,
-        typeof idHeaderNumber
-      );
       return h.id === idHeaderNumber; // Cần trả về kết quả của hàm find
     });
-    console.log("selected:", selected);
 
     if (selected) {
       console.log("gan du lieu header");
@@ -1376,7 +1272,7 @@ const createTemplate = () => {
 };
 
 const removeElement = (sectionId, element) => {
-  const store = useSectionStore();
+  // const store = useSectionStore();
   console.log("element chuan bi xoa: ", element);
   if (element.type === "button") {
     console.log("xoa element button");
@@ -1418,6 +1314,17 @@ const removeElement = (sectionId, element) => {
         );
       }
     }
+  } else if (element.type === "header") {
+    console.log(
+      "xoa header",
+      sectionId,
+      element.id
+    );
+
+    store.removeHeaderFromSection(
+      sectionId,
+      element.id
+    );
   }
   console.log(store, "sau khi xoa");
 };

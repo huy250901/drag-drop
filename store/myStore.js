@@ -120,10 +120,6 @@ export const useSectionStore = defineStore({
         };
 
         section.headers.push(headerWithDefaults);
-        console.log(
-          "section.headers after adding:",
-          section.headers
-        );
       }
     },
     addSectionWithButton(sectionId, data) {
@@ -181,10 +177,6 @@ export const useSectionStore = defineStore({
           contents: `Button ${buttonId}`,
         };
         section.buttons.push(buttonWithDefaults);
-        console.log(
-          "section.buttons after adding:",
-          section.buttons
-        );
       }
     },
     addParagraphToSection(
@@ -246,6 +238,15 @@ export const useSectionStore = defineStore({
         );
       }
     },
+    removeHeaderFromSection(sectionId, headerId) {
+      const section =
+        this.findSectionById(sectionId);
+      if (section) {
+        section.headers = section.headers.filter(
+          (header) => header.id !== headerId
+        );
+      }
+    },
     updateButtonProperty(
       id,
       newContent,
@@ -254,14 +255,6 @@ export const useSectionStore = defineStore({
       newTop,
       newLeft
     ) {
-      console.log("goi ham update button");
-      console.log("STORE BUTTON ID:", id);
-      console.log("STORE CONTENT:", newContent);
-      console.log("STORE WIDTH:", newWidth);
-      console.log("STORE HEIGHT:", newHeight);
-      console.log("STORE TOP:", newTop);
-      console.log("STORE LEFT:", newLeft);
-
       for (const section of this.sections) {
         const button = section.buttons.find(
           (b) => b.id === id
@@ -272,20 +265,6 @@ export const useSectionStore = defineStore({
           button.height = newHeight;
           button.top = newTop;
           button.left = newLeft;
-
-          console.log(
-            "width current:",
-            button.width
-          );
-          console.log(
-            "height current:",
-            button.height
-          );
-          console.log("top current:", button.top);
-          console.log(
-            "left current:",
-            button.left
-          );
           break;
         }
       }
@@ -298,14 +277,6 @@ export const useSectionStore = defineStore({
       newTop,
       newLeft
     ) {
-      console.log("goi ham update paragraph");
-      console.log("STORE PARAGRAPH ID:", id);
-      console.log("STORE CONTENT:", newContent);
-      console.log("STORE WIDTH:", newWidth);
-      console.log("STORE HEIGHT:", newHeight);
-      console.log("STORE TOP:", newTop);
-      console.log("STORE LEFT:", newLeft);
-
       for (const section of this.sections) {
         const paragraph = section.paragraphs.find(
           (p) => p.id === id
@@ -316,24 +287,7 @@ export const useSectionStore = defineStore({
           paragraph.height = newHeight;
           paragraph.top = newTop;
           paragraph.left = newLeft;
-
-          console.log(
-            "width current:",
-            paragraph.width
-          );
-          console.log(
-            "height current:",
-            paragraph.height
-          );
-          console.log(
-            "top current:",
-            paragraph.top
-          );
-          console.log(
-            "left current:",
-            paragraph.left
-          );
-          break; // Dừng vòng lặp sau khi cập nhật xong
+          break;
         }
       }
     },
@@ -345,13 +299,6 @@ export const useSectionStore = defineStore({
       newTop,
       newLeft
     ) {
-      console.log("STORE TEMPLATE ID:", id);
-      console.log("STORE CONTENT:", newContent);
-      console.log("STORE WIDTH:", newWidth);
-      console.log("STORE HEIGHT:", newHeight);
-      console.log("STORE TOP:", newTop);
-      console.log("STORE LEFT:", newLeft);
-
       for (const section of this.sections) {
         for (const module of section.modules) {
           if (module.id === id) {
@@ -360,55 +307,19 @@ export const useSectionStore = defineStore({
             module.height = newHeight;
             module.top = newTop;
             module.left = newLeft;
-
-            console.log(
-              "width current:",
-              module.width
-            );
-            console.log(
-              "height current:",
-              module.height
-            );
-            console.log(
-              "top current:",
-              module.top
-            );
-            console.log(
-              "left current:",
-              module.left
-            );
-            break; 
+            break;
           }
         }
       }
     },
-    updateHeaderProperty(
-      id,
-      newContent,
-      newWidth,
-      newHeight
-    ) {
-      console.log("goi ham update header");
-      console.log("STORE HEADER ID:", id);
-      console.log("STORE CONTENT:", newContent);
-      console.log("STORE WIDTH:", newWidth);
-      console.log("STORE HEIGHT:", newHeight);
-
+    updateHeaderProperty(id, newHeight, newTop) {
       for (const section of this.sections) {
         const header = section.headers.find(
           (h) => h.id === id
         );
         if (header) {
           header.height = newHeight;
-
-          console.log(
-            "width current:",
-            header.width
-          );
-          console.log(
-            "height current:",
-            header.height
-          );
+          header.top = newTop;
           break;
         }
       }
