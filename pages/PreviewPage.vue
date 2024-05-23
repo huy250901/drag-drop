@@ -15,6 +15,57 @@
           :class="section.css"
         >
           <div
+            class="absolute w-full"
+            v-for="header in section.headers"
+            :key="header.id"
+            :style="`position: absolute;
+width: ${header.width}px; height: ${header.height}px`"
+          >
+            <component
+              :style="`transform: translate(0px, ${header.top}px)`"
+              :is="header.type"
+              :header="header"
+              :class="`${header.css} h-[${header.height}px] ${header.backgroundColor}`"
+            >
+              <component
+                :is="div.type"
+                :key="div.id"
+                v-for="div in header.divOne"
+                :class="div.css"
+              >
+                <img
+                  src="../assets/img/instgram.webp"
+                  alt="logo"
+                  :class="div.cssImg"
+                />
+              </component>
+              <component
+                :class="div.css"
+                :is="div.type"
+                v-for="div in header.divSecond"
+                :key="div.id"
+              >
+                <component
+                  :class="`${div.cssUl}`"
+                  :key="div.id"
+                  :is="div.parentLink"
+                >
+                  <li
+                    v-for="li in div.links"
+                    :key="li.id"
+                    :class="li.cssLi"
+                  >
+                    <a
+                      :class="li.cssA"
+                      :href="li.href"
+                      >{{ li.name }}</a
+                    >
+                  </li>
+                </component>
+              </component>
+            </component>
+          </div>
+          <div
             v-for="button in section.buttons"
             :key="button.id"
             :style="`position: absolute;
@@ -91,11 +142,11 @@ onMounted(() => {
       JSON.parse(sectionsData);
     dataPreview.value = true;
   }
-  console.log(
-    "DATA TRANFER: ",
-    sectionsData,
-    dataPreview
-  );
+  // console.log(
+  //   "DATA TRANFER: ",
+  //   sectionsData,
+  //   dataPreview
+  // );
 });
 </script>
 

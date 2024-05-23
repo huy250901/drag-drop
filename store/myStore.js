@@ -34,7 +34,7 @@ export const useSectionStore = defineStore({
         type: "section",
         width: "",
         height: "",
-        css: "section relative w-full border-transparent border-2 h-[500px] bg-slate-500",
+        css: "section relative w-full h-[500px] bg-slate-500",
         buttons: [],
         paragraphs: [],
         modules: [],
@@ -50,36 +50,72 @@ export const useSectionStore = defineStore({
         const headerId = this.nextId++;
         const headerWithDefaults = {
           id: headerId,
-          css: "flex justify-between px-6 items-center",
-          height: "60px",
+          type: "header",
+          css: "h-full w-full flex justify-between px-6 items-center",
+          height: "60",
           width: "100%",
+          top: "",
+          left: "",
           backgroundColor: "bg-gray-700",
-          links: [
+          logo: "./instgram.webp",
+          divOne: [
             {
-              id: 1,
-              name: "Home",
+              type: "div-header",
+              css: "flex-1",
+              imgType: "img",
               href: "#",
-              color: "text-gray-100",
-            },
-            {
-              id: 2,
-              name: "About us",
-              href: "#",
-              color: "text-white",
-            },
-            {
-              id: 3,
-              name: "Blog",
-              href: "#",
-              color: "text-white",
-            },
-            {
-              id: 4,
-              name: "Contact",
-              href: "#",
-              color: "text-white",
+              cssImg: "h-8 w-auto cursor-pointer",
             },
           ],
+          divSecond: [
+            {
+              type: "div-header",
+              css: "h-full flex-1",
+              parentLink: "ul",
+              cssUl:
+                "flex w-full h-full items-center justify-around",
+              links: [
+                {
+                  id: 1,
+                  name: "Home",
+                  cssLi: "h-full",
+                  type: "li-header",
+                  href: "#",
+                  color: "text-gray-100",
+                  cssA: "text-gray-100 h-full flex items-center justify-center transition duration-300 hover:text-yellow-300",
+                },
+                {
+                  id: 2,
+                  name: "About us",
+                  cssLi: "h-full",
+                  href: "#",
+                  type: "li-header",
+
+                  color: "text-white",
+                  cssA: "text-gray-100 h-full flex items-center justify-center transition duration-300 hover:text-yellow-300",
+                },
+                {
+                  id: 3,
+                  name: "Blog",
+                  type: "li-header",
+                  cssLi: "h-full",
+                  href: "#",
+                  cssA: "text-gray-100 h-full flex items-center justify-center transition duration-300 hover:text-yellow-300",
+                  color: "text-white",
+                },
+                {
+                  id: 4,
+                  name: "Contact",
+                  cssLi: "h-full",
+                  type: "li-header",
+                  href: "#",
+                  cssA: "text-gray-100 h-full flex items-center justify-center transition duration-300 hover:text-yellow-300",
+                  color: "text-white",
+                },
+              ],
+            },
+          ],
+
           ...dataHeader,
         };
 
@@ -90,7 +126,6 @@ export const useSectionStore = defineStore({
         );
       }
     },
-
     addSectionWithButton(sectionId, data) {
       const section =
         this.findSectionById(sectionId);
@@ -215,12 +250,17 @@ export const useSectionStore = defineStore({
       id,
       newContent,
       newWidth,
-      newHeight
+      newHeight,
+      newTop,
+      newLeft
     ) {
+      console.log("goi ham update button");
       console.log("STORE BUTTON ID:", id);
       console.log("STORE CONTENT:", newContent);
       console.log("STORE WIDTH:", newWidth);
       console.log("STORE HEIGHT:", newHeight);
+      console.log("STORE TOP:", newTop);
+      console.log("STORE LEFT:", newLeft);
 
       for (const section of this.sections) {
         const button = section.buttons.find(
@@ -230,6 +270,8 @@ export const useSectionStore = defineStore({
           button.contents = newContent;
           button.width = newWidth;
           button.height = newHeight;
+          button.top = newTop;
+          button.left = newLeft;
 
           console.log(
             "width current:",
@@ -239,6 +281,11 @@ export const useSectionStore = defineStore({
             "height current:",
             button.height
           );
+          console.log("top current:", button.top);
+          console.log(
+            "left current:",
+            button.left
+          );
           break;
         }
       }
@@ -247,12 +294,17 @@ export const useSectionStore = defineStore({
       id,
       newContent,
       newWidth,
-      newHeight
+      newHeight,
+      newTop,
+      newLeft
     ) {
+      console.log("goi ham update paragraph");
       console.log("STORE PARAGRAPH ID:", id);
       console.log("STORE CONTENT:", newContent);
       console.log("STORE WIDTH:", newWidth);
       console.log("STORE HEIGHT:", newHeight);
+      console.log("STORE TOP:", newTop);
+      console.log("STORE LEFT:", newLeft);
 
       for (const section of this.sections) {
         const paragraph = section.paragraphs.find(
@@ -262,6 +314,8 @@ export const useSectionStore = defineStore({
           paragraph.contents = newContent;
           paragraph.width = newWidth;
           paragraph.height = newHeight;
+          paragraph.top = newTop;
+          paragraph.left = newLeft;
 
           console.log(
             "width current:",
@@ -271,7 +325,91 @@ export const useSectionStore = defineStore({
             "height current:",
             paragraph.height
           );
+          console.log(
+            "top current:",
+            paragraph.top
+          );
+          console.log(
+            "left current:",
+            paragraph.left
+          );
           break; // Dừng vòng lặp sau khi cập nhật xong
+        }
+      }
+    },
+    updateTemplateProperty(
+      id,
+      newContent,
+      newWidth,
+      newHeight,
+      newTop,
+      newLeft
+    ) {
+      console.log("STORE TEMPLATE ID:", id);
+      console.log("STORE CONTENT:", newContent);
+      console.log("STORE WIDTH:", newWidth);
+      console.log("STORE HEIGHT:", newHeight);
+      console.log("STORE TOP:", newTop);
+      console.log("STORE LEFT:", newLeft);
+
+      for (const section of this.sections) {
+        for (const module of section.modules) {
+          if (module.id === id) {
+            module.contents = newContent;
+            module.width = newWidth;
+            module.height = newHeight;
+            module.top = newTop;
+            module.left = newLeft;
+
+            console.log(
+              "width current:",
+              module.width
+            );
+            console.log(
+              "height current:",
+              module.height
+            );
+            console.log(
+              "top current:",
+              module.top
+            );
+            console.log(
+              "left current:",
+              module.left
+            );
+            break; 
+          }
+        }
+      }
+    },
+    updateHeaderProperty(
+      id,
+      newContent,
+      newWidth,
+      newHeight
+    ) {
+      console.log("goi ham update header");
+      console.log("STORE HEADER ID:", id);
+      console.log("STORE CONTENT:", newContent);
+      console.log("STORE WIDTH:", newWidth);
+      console.log("STORE HEIGHT:", newHeight);
+
+      for (const section of this.sections) {
+        const header = section.headers.find(
+          (h) => h.id === id
+        );
+        if (header) {
+          header.height = newHeight;
+
+          console.log(
+            "width current:",
+            header.width
+          );
+          console.log(
+            "height current:",
+            header.height
+          );
+          break;
         }
       }
     },
