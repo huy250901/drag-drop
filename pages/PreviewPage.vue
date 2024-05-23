@@ -14,6 +14,7 @@
           :is="section.type"
           :class="section.css"
         >
+          <!-- IMAGE -->
           <div
             v-for="image in section.images"
             class="absolute"
@@ -27,16 +28,27 @@
             >
             </component>
           </div>
-
+          <!-- BUTTON -->
           <div
-            class="absolute w-full"
-            v-for="header in section.headers"
-            :key="header.id"
-            :style="`position: absolute;
-width: ${header.width}px; height: ${header.height}px`"
+            v-for="button in section.buttons"
+            :key="button.id"
+            class="absolute"
+            :style="`transform: translate(${button.left}px, ${button.top}px); width: ${button.width}px; height: ${button.height}px`"
           >
             <component
-              :style="`transform: translate(0px, ${header.top}px)`"
+              :is="button.type"
+              :class="`${button.css} bg-blue-500`"
+              >{{ button.contents }}</component
+            >
+          </div>
+          <!-- HEADER -->
+          <div
+            v-for="header in section.headers"
+            class="absolute w-full"
+            :key="header.id"
+            :style="`transform: translate(0px, ${header.top}px);width: ${header.width}px; height: ${header.height}px`"
+          >
+            <component
               :is="header.type"
               :header="header"
               :class="`${header.css} h-[${header.height}px] ${header.backgroundColor}`"
@@ -79,47 +91,36 @@ width: ${header.width}px; height: ${header.height}px`"
               </component>
             </component>
           </div>
-          <div
-            v-for="button in section.buttons"
-            :key="button.id"
-            :style="`position: absolute;
-width: ${button.width}px; height: ${button.height}px`"
-          >
-            <component
-              :is="button.type"
-              :style="`transform: translate(${button.left}px, ${button.top}px)`"
-              :class="`bg-emerald-500 ${button.css}`"
-            >
-              {{ `${button.contents}` }}
-            </component>
-          </div>
+          <!-- MODULE BTN -->
           <div
             v-for="moduleBtn in section.modules"
             :key="moduleBtn.id"
-            :class="moduleBtn.css"
-            :style="`width: ${moduleBtn.width}px;height: ${moduleBtn.height}px;transform: translate(${moduleBtn.left}px, ${moduleBtn.top}px)`"
+            :class="`${moduleBtn.css} absolute`"
+            :style="`transform: translate(${moduleBtn.left}px, ${moduleBtn.top}px); width: ${moduleBtn.width}px; height: ${moduleBtn.height}px`"
           >
             <component
               :is="`button`"
               v-for="button in moduleBtn.buttons"
               :key="button.id"
               :class="button.css"
-              :style="`position: absolute; width: ${button.width}px;height: ${button.height}px`"
+              :style="`width: ${button.width}px;height: ${button.height}`"
             >
               {{ button.contents }}
             </component>
           </div>
+          <!-- PARAGRAPH -->
           <div
             v-for="paragraph in section.paragraphs"
+            class="absolute"
             :key="paragraph.id"
-            :style="`position: absolute;transform: translate(${paragraph.left}px, ${paragraph.top}px)`"
+            :style="`transform: translate(${paragraph.left}px, ${paragraph.top}px); width: ${paragraph.width}px; height: ${paragraph.height}px`"
           >
-            <p
+            <component
+              :is="paragraph.typeP"
               :class="paragraph.css"
-              :style="`width: ${paragraph.width}px;height: ${paragraph.height}px`"
             >
               {{ paragraph.contents }}
-            </p>
+            </component>
           </div>
         </component>
       </div>

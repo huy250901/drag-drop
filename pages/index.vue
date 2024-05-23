@@ -389,7 +389,7 @@
           :id="button.id"
           :data-type="button.type"
           :data-id="button.id"
-          :class="`${button.css} bg-emerald-500`"
+          :class="`${button.css} `"
         >
           {{ `${button.contents}` }}
         </button>
@@ -445,7 +445,7 @@
             v-for="btn in moduleBtn.buttons"
             :key="btn.id"
             :id="btn.id"
-            :class="`${btn.css} bg-emerald-500`"
+            :class="`${btn.css} `"
             :style="`width: ${btn.width}px; height: ${btn.height}px`"
             :data-type="btn.type"
             :data-id="btn.id"

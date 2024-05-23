@@ -214,7 +214,7 @@ export const useSectionStore = defineStore({
         const paragraphWithDefaults = {
           ...paragraphData,
           id: section.nextIds.paragraph++,
-          type: "p",
+          typeP: "p",
           contents: "paragraph",
           css: "w-full h-full text-black bg-white",
           type: "paragraph",
