@@ -189,6 +189,14 @@
             Add image
           </button>
         </li>
+        <li>
+          <button
+            class="bg-white p-2 rounded-md w-full"
+            @click="createHeaderContent"
+          >
+            Add Header Content
+          </button>
+        </li>
       </ul>
       <ul v-else class="flex flex-col gap-4 pt-4">
         <li>
@@ -220,6 +228,62 @@
         },
       ]"
     >
+      <vue-draggable-resizable
+        v-for="headerContent in section.headerContent"
+        :key="headerContent.id"
+        h="300"
+        :parent="true"
+        :x="headerContent.left"
+        :y="headerContent.top"
+      >
+        <header
+          :id="headerContent.id"
+          :class="headerContent.css"
+          :style="headerContent.style"
+        >
+          <div
+            v-for="divOne in headerContent.divOne"
+            :key="divOne.id"
+            :class="divOne.css"
+          >
+            <span
+              v-for="span in divOne.childs"
+              :class="span.css"
+              :key="span.id"
+              >{{ span.content }}</span
+            >
+          </div>
+          <div
+            v-for="divSecond in headerContent.divSecond"
+            :key="divSecond.id"
+            :class="divSecond.css"
+          >
+            <div
+              v-for="child in divSecond.childs"
+              :key="child.id"
+            >
+              <h1
+                v-for="span in child.childH1"
+                :key="span.id"
+              >
+                <span
+                  :class="span.css"
+                  :style="span.style"
+                >
+                  {{ span.content }}
+                </span>
+              </h1>
+              <a
+                :href="child.href"
+                :class="child.cssA"
+              >
+                {{ child.contentA }}
+              </a>
+            </div>
+          </div>
+        </header>
+      </vue-draggable-resizable>
+
       <vue-draggable-resizable
         v-for="image in section.images"
         :parent="true"
@@ -1142,6 +1206,36 @@ const createButton = () => {
   }
 };
 
+const createHeaderContent = () => {
+  if (selectedSectionId.value !== null) {
+    const sectionId = selectedSectionId.value;
+    const section = sectionStore.sections.find(
+      (section) => section.id === sectionId
+    );
+
+    if (section) {
+      let nextHeaderId = 1;
+      if (section.headerContent.length > 0) {
+        const maxHeaderId = Math.max(
+          ...section.headerContent.map(
+            (header) => header.id
+          )
+        );
+        nextHeaderId = maxHeaderId + 1;
+      }
+
+      const headerContentData = {
+        id: nextHeaderId,
+      };
+
+      sectionStore.addHeaderContent(
+        sectionId,
+        headerContentData
+      );
+    }
+  }
+};
+
 const createTemplate = () => {
   if (selectedSectionId.value !== null) {
     const sectionId = selectedSectionId.value;
@@ -1281,15 +1375,22 @@ document.addEventListener("click", (event) => {
     closeElementProperty();
   }
 
+  // if (
+  //   (target.closest(".menu") ||
+  //     target.closest(".menuLeft") ||
+  //     target.closest(".menuRight") ||
+  //     target.closest(".full-height")) &&
+  //   !target.closest(".section")
+  // ) {
+  //   selectedElement.value = false;
+  // }
+
   if (
-    (target.closest(".menu") ||
-      target.closest(".menuLeft") ||
-      target.closest(".menuRight") ||
-      target.closest(".full-height")) &&
-    !target.closest(".section")
+    target.closest(".menu") ||
+    target.closest(".menuLeft")
   ) {
     selectedElement.value = false;
-    // console.log("set lai nut xoa");
+    console.log("set");
   }
 });
 </script>

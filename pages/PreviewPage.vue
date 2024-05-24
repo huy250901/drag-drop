@@ -14,6 +14,55 @@
           :is="section.type"
           :class="section.css"
         >
+          <!-- Header Content -->
+          <component
+            :is="header.type"
+            v-for="header in section.headerContent"
+            :key="header.id"
+            :class="header.css"
+            :style="header.style"
+          >
+            <div
+              v-for="divOne in header.divOne"
+              :key="divOne.id"
+              :class="divOne.css"
+            >
+              <component
+                v-for="span in divOne.childs"
+                :class="span.css"
+                :is="span.type"
+                :key="span.id"
+              >
+                {{ span.content }}
+              </component>
+            </div>
+            <div
+              v-for="divSecond in header.divSecond"
+              :class="divSecond.css"
+              :key="divSecond.id"
+            >
+              <h1
+                v-for="h in divSecond.childs"
+                :class="h.cssH1"
+                :key="h.id"
+              >
+                <span
+                  v-for="span in h.childH1"
+                  :key="span.id"
+                  :class="span.css"
+                  :style="span.style"
+                  >{{ span.content }}</span
+                >
+              </h1>
+              <a
+                v-for="a in divSecond.childs"
+                :key="a.id"
+                :class="a.cssA"
+                :href="a.href"
+                >{{ a.contentA }}</a
+              >
+            </div>
+          </component>
           <!-- IMAGE -->
           <div
             v-for="image in section.images"

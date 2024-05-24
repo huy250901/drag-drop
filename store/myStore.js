@@ -60,6 +60,7 @@ export const useSectionStore = defineStore({
         modules: [],
         headers: [],
         images: [],
+        headerContent: [],
       };
       this.sections.push(sectionWithDefaults);
     },
@@ -83,6 +84,73 @@ export const useSectionStore = defineStore({
         section.images.push(imageWithDefaults);
       }
     },
+    addHeaderContent(
+      sectionId,
+      dataHeaderContent
+    ) {
+      const section =
+        this.findSectionById(sectionId);
+      if (section) {
+        const headerContentId = this.nextId;
+        const headerContentDefaults = {
+          ...dataHeaderContent,
+          id: headerContentId,
+          type: "header",
+          top: "",
+          left: "",
+          width: "",
+          height: "",
+          css: "header relative h-full bg-gradient-to-br from-blue-400 to-blue-900",
+          style: {
+            backgroundImage:
+              "url('https://images.pexels.com/photos/213399/pexels-photo-213399.jpeg')",
+            backgroundSize: "cover",
+            backgroundPosition: "center top",
+          },
+          divOne: [
+            {
+              type: "div-Content",
+              css: "absolute top-10 left-10",
+              childs: [
+                {
+                  type: "span",
+                  css: "text-white text-lg",
+                  content: "Example Brand",
+                },
+              ],
+            },
+          ],
+          divSecond: [
+            {
+              type: "div-Content",
+              css: "absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center",
+              childs: [
+                {
+                  cssH1: "mb-4",
+                  childH1: [
+                    {
+                      type: "span",
+                      style:
+                        "text-shadow: 2px 1px 0px rgba(0, 0, 0, 1)",
+                      content:
+                        "Heading Primary Main",
+                      css: "text-white block text-2xl font-normal tracking-wider mb-8",
+                    },
+                  ],
+                  cssA: "btn-white bg-blue-400 btn-animated inline-block uppercase text-center text-white py-2 px-4 rounded-full transition transform duration-200 ease-in-out hover:shadow-lg hover:translate-y-0.5 active:translate-y-0.5",
+                  contentA: "Discover our tours",
+                  href: "#",
+                },
+              ],
+            },
+          ],
+        };
+        section.headerContent.push(
+          headerContentDefaults
+        );
+      }
+    },
+
     addHeader(sectionId, dataHeader) {
       const section =
         this.findSectionById(sectionId);
@@ -259,14 +327,15 @@ export const useSectionStore = defineStore({
       }
     },
     removeImageFromSection(sectionId, imageId) {
-      const section = this.findSectionById(sectionId);
+      const section =
+        this.findSectionById(sectionId);
       if (section) {
         section.images = section.images.filter(
           (image) => image.id !== imageId
         );
       }
     },
-    
+
     removeParagraphFromSection(
       sectionId,
       paragraphId
