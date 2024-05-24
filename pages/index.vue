@@ -1383,14 +1383,25 @@ document.addEventListener("click", (event) => {
   //   !target.closest(".section")
   // ) {
   //   selectedElement.value = false;
+  //   console.log("set lai");
   // }
-
-  if (
-    target.closest(".menu") ||
-    target.closest(".menuLeft")
+  if (target.closest(".menuRight")) {
+    console.log("đang chỉnh sửa thuộc tính");
+  } else if (
+    (target.closest(".menu") ||
+      target.closest(".menuLeft") ||
+      target.closest(".full-height")) &&
+    !target.closest(".section")
   ) {
     selectedElement.value = false;
-    console.log("set");
   }
+
+  // if (
+  //   target.closest(".menu") ||
+  //   target.closest(".menuLeft")
+  // ) {
+  //   selectedElement.value = false;
+  //   console.log("set");
+  // }
 });
 </script>

@@ -19,7 +19,7 @@
             :is="header.type"
             v-for="header in section.headerContent"
             :key="header.id"
-            :class="header.css"
+            :class="`${header.css} absolute`"
             :style="header.style"
           >
             <div
