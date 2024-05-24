@@ -19,6 +19,25 @@ export const useSectionStore = defineStore({
         section.nextIds[type] = 1;
       }
     },
+    removeSection(sectionId) {
+      console.log(
+        "Removing section with ID:",
+        sectionId
+      );
+      console.log(
+        "Current sections:",
+        this.sections
+      );
+
+      this.sections = this.sections.filter(
+        (section) => section.id !== sectionId
+      );
+
+      console.log(
+        "Updated sections:",
+        this.sections
+      );
+    },
     initializeModuleNextId(module, type) {
       if (!module.nextIds) {
         module.nextIds = {
@@ -44,6 +63,7 @@ export const useSectionStore = defineStore({
       };
       this.sections.push(sectionWithDefaults);
     },
+
     addImageToSection(sectionId, image) {
       const section =
         this.findSectionById(sectionId);
@@ -228,6 +248,7 @@ export const useSectionStore = defineStore({
         );
       }
     },
+
     removeButtonFromSection(sectionId, buttonId) {
       const section =
         this.findSectionById(sectionId);
@@ -237,6 +258,15 @@ export const useSectionStore = defineStore({
         );
       }
     },
+    removeImageFromSection(sectionId, imageId) {
+      const section = this.findSectionById(sectionId);
+      if (section) {
+        section.images = section.images.filter(
+          (image) => image.id !== imageId
+        );
+      }
+    },
+    
     removeParagraphFromSection(
       sectionId,
       paragraphId

@@ -1,7 +1,7 @@
 <template>
-  <div>
+  <div class="h-lvh full-height">
     <header
-      class="bg-slate-400 h-16 items-center flex sticky z-50 top-0 px-4 justify-between"
+      class="menu bg-slate-400 h-16 items-center flex sticky z-50 top-0 px-4 justify-between"
     >
       <button
         @click="openMenu"
@@ -259,6 +259,8 @@
         "
       >
         <img
+          :data-id="image.id"
+          :data-type="image.type"
           :class="image.css"
           :src="image.src"
         />
@@ -535,8 +537,24 @@ const router = useRouter();
 const selectedElement = ref(null);
 const showMenuElement = ref(false);
 const selectedSectionId = ref(null);
+const sections = ref(store.sections);
+
+watch(
+  () => store.sections,
+  (newSections, oldSections) => {
+    console.log(
+      "Dữ liệu sections đã thay đổi",
+      newSections
+    );
+    sections.value = newSections;
+  }
+);
+const dragging = ref(false);
+const x = ref(0);
+const y = ref(0);
 
 const sectionStore = useSectionStore();
+const storeSections = ref(sectionStore.sections);
 
 const dataProperty = ref({
   type: selectedElement.type,
@@ -612,14 +630,6 @@ const preview = () => {
 
   router.push("/previewPage");
 };
-
-const sections = ref(sectionStore.sections);
-const paragraphArray = ref([]);
-const previewSections = ref([]);
-const storeSections = ref(sectionStore.sections);
-const dragging = ref(false);
-const x = ref(0);
-const y = ref(0);
 
 const onResize = (...$event) => {
   const { x, y, width, height } = $event;
@@ -856,17 +866,17 @@ const addSection = () => {
 const handleSectionClick = (sectionId, event) => {
   const clickedElement = event.target;
   const element = event.currentTarget;
-
+  console.log("event target", element);
   openElementProperty();
   showMenuElement.value = true;
   selectedSectionId.value = sectionId;
 
   const targetElementClick =
     clickedElement.dataset.type;
-  // console.log(
-  //   "CLICKED ELEMENT DATA TYPE: ",
-  //   targetElementClick
-  // );
+  console.log(
+    "CLICKED ELEMENT DATA TYPE: ",
+    targetElementClick
+  );
   // console.log(
   //   "CLICKED ELEMENT ID: ",
   //   clickedElement.dataset.id
@@ -975,6 +985,12 @@ const handleSectionClick = (sectionId, event) => {
               .flatMap((module) => module.buttons)
               .find((b) => b.id === elementId);
           break;
+        case "img":
+          selected = section.images.find(
+            (img) => img.id === elementId
+          );
+          console.log(selected, "selected img");
+          break;
         case "paragraph":
           selected = section.paragraphs.find(
             (p) => p.id === elementId
@@ -1064,7 +1080,8 @@ const createParagraph = () => {
         sectionId,
         paragraphData
       );
-      // console.log("paragraph:", section);
+      console.log("paragraph:", section);
+      console.log("store:", store.sections);
     }
   }
 };
@@ -1190,14 +1207,31 @@ const addImage = () => {
 
 const removeElement = (sectionId, element) => {
   // const store = useSectionStore();
-  // console.log("element chuan bi xoa: ", element);
+  console.log("element chuan bi xoa: ", element);
   if (element.type === "button") {
     store.removeButtonFromSection(
       sectionId,
       element.id
     );
+  } else if (element.type === "section") {
+    console.log("sectionId", sectionId);
+    const section = store.sections.find(
+      (section) => section.id === element.id
+    );
+    if (section) {
+      // section.removeSection
+      console.log(
+        "xoa section id: " + section.id
+      );
+      store.removeSection(element.id);
+    }
   } else if (element.type === "paragraph") {
     store.removeParagraphFromSection(
+      sectionId,
+      element.id
+    );
+  } else if (element.type === "img") {
+    store.removeImageFromSection(
       sectionId,
       element.id
     );
@@ -1245,6 +1279,17 @@ document.addEventListener("click", (event) => {
     !target.closest(".menuRight")
   ) {
     closeElementProperty();
+  }
+
+  if (
+    (target.closest(".menu") ||
+      target.closest(".menuLeft") ||
+      target.closest(".menuRight") ||
+      target.closest(".full-height")) &&
+    !target.closest(".section")
+  ) {
+    selectedElement.value = false;
+    // console.log("set lai nut xoa");
   }
 });
 </script>
