@@ -139,7 +139,7 @@ export const useSectionStore = defineStore({
                   ],
                   cssA: "btn-white bg-blue-400 btn-animated inline-block uppercase text-center text-white py-2 px-4 rounded-full transition transform duration-200 ease-in-out hover:shadow-lg hover:translate-y-0.5 active:translate-y-0.5",
                   contentA: "Discover our tours",
-                  href: "#",
+                  href: "/",
                 },
               ],
             },
@@ -436,7 +436,14 @@ export const useSectionStore = defineStore({
     updateHeaderProperty(id, newHeight, newTop) {
       for (const section of this.sections) {
         const header = section.headers.find(
-          (h) => h.id === id
+          (h) => {
+            h.id === id;
+
+            console.log(
+              "chinh sua width height cua id",
+              h.id
+            );
+          }
         );
         if (header) {
           header.height = newHeight;

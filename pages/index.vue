@@ -1,7 +1,7 @@
 <template>
-  <div class="h-lvh full-height">
+  <div class="full-height">
     <header
-      class="menu bg-slate-400 h-16 items-center flex sticky z-50 top-0 px-4 justify-between"
+      class="menu bg-slate-400 h-16 items-center flex sticky z-[1000] top-0 px-4 justify-between"
     >
       <button
         @click="openMenu"
@@ -289,8 +289,6 @@
         :parent="true"
         :min-width="80"
         :min-height="30"
-        :max-width="300"
-        :max-height="300"
         :key="image.id"
         class="absolute"
         :w="image.width"
@@ -1375,33 +1373,15 @@ document.addEventListener("click", (event) => {
     closeElementProperty();
   }
 
-  // if (
+  // if (target.closest(".menuRight")) {
+  //   console.log("đang chỉnh sửa thuộc tính");
+  // } else if (
   //   (target.closest(".menu") ||
   //     target.closest(".menuLeft") ||
-  //     target.closest(".menuRight") ||
   //     target.closest(".full-height")) &&
   //   !target.closest(".section")
   // ) {
   //   selectedElement.value = false;
-  //   console.log("set lai");
-  // }
-  if (target.closest(".menuRight")) {
-    console.log("đang chỉnh sửa thuộc tính");
-  } else if (
-    (target.closest(".menu") ||
-      target.closest(".menuLeft") ||
-      target.closest(".full-height")) &&
-    !target.closest(".section")
-  ) {
-    selectedElement.value = false;
-  }
-
-  // if (
-  //   target.closest(".menu") ||
-  //   target.closest(".menuLeft")
-  // ) {
-  //   selectedElement.value = false;
-  //   console.log("set");
   // }
 });
 </script>
